@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VerifyID — Identity Validation Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root{
+  --navy:       #0a1628;
+  --navy-80:    #0d1f3c;
+  --navy-60:    #1a3a5c;
+  --teal:       #0d9488;
+  --teal-light: #14b8a6;
+  --teal-pale:  #f0fdfa;
+  --teal-mid:   #ccfbf1;
+  --white:      #ffffff;
+  --surface:    #f8fafc;
+  --border:     #e2e8f0;
+  --border-mid: #cbd5e1;
+  --text-primary:#0f172a;
+  --text-sec:   #475569;
+  --text-muted: #94a3b8;
+  --green:      #059669;
+  --green-bg:   #ecfdf5;
+  --red:        #dc2626;
+  --red-bg:     #fef2f2;
+  --amber:      #d97706;
+  --amber-bg:   #fffbeb;
+  --blue:       #2563eb;
+  --blue-bg:    #eff6ff;
+  --r:8px; --r-lg:12px; --r-xl:16px;
+  --shadow-xs:  0 1px 2px rgba(0,0,0,.05);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.04);
+  --shadow-lg:  0 10px 15px -3px rgba(0,0,0,.08),0 4px 6px -2px rgba(0,0,0,.03);
+  --shadow-xl:  0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04);
+  --t: all .15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;color:var(--text-primary);background:var(--surface);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* ─── SCREENS ────────────────────────────────────────── */
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* ─── TOPBAR ─────────────────────────────────────────── */
+.topbar{background:var(--navy);padding:0 24px;height:44px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.5);letter-spacing:.2px;}
+.topbar a{color:rgba(255,255,255,.5);transition:var(--t)}
+.topbar a:hover{color:rgba(255,255,255,.85);text-decoration:none}
+.topbar-left{display:flex;align-items:center;gap:6px}
+.topbar-left svg{width:14px;height:14px;fill:var(--teal-light)}
+.topbar-right{display:flex;gap:20px;align-items:center}
+
+/* ─── HEADER ─────────────────────────────────────────── */
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-xs);position:sticky;top:0;z-index:100;}
+.header-logo{display:flex;align-items:center;gap:14px}
+.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--navy-60));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-mark svg{width:24px;height:24px;fill:var(--teal-light)}
+.logo-info .brand{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.3px;line-height:1.1}
+.logo-info .tagline{font-size:10.5px;color:var(--text-muted);letter-spacing:.1px}
+.header-portal{display:flex;align-items:center;gap:10px;background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:6px 14px;}
+.header-portal .p-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600}
+.header-portal .p-name{font-size:12.5px;font-weight:600;color:var(--navy)}
+.header-nav-strip{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:2px;}
+.header-nav-strip a{font-size:12.5px;font-weight:500;color:var(--text-sec);padding:10px 14px;display:block;border-bottom:2px solid transparent;transition:var(--t);text-decoration:none;white-space:nowrap;}
+.header-nav-strip a:hover{color:var(--navy);background:var(--surface)}
+.header-nav-strip a.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600}
+
+/* ─── BREADCRUMB ─────────────────────────────────────── */
+.breadcrumb{padding:8px 24px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;background:var(--white);border-bottom:1px solid var(--border);}
+.breadcrumb a{color:var(--text-muted)}
+.breadcrumb a:hover{color:var(--teal);text-decoration:none}
+.breadcrumb svg{width:12px;height:12px;fill:var(--text-muted);flex-shrink:0}
+.breadcrumb span{color:var(--text-primary);font-weight:500}
+
+/* ─── HERO ───────────────────────────────────────────── */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-60) 100%);padding:32px 24px 28px;color:var(--white);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(13,148,136,.25) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:-60px;left:20%;width:180px;height:180px;background:radial-gradient(circle,rgba(13,148,136,.12) 0%,transparent 70%);pointer-events:none;}
+.hero-inner{max-width:900px;position:relative;z-index:1}
+.hero h1{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px;line-height:1.25}
+.hero p{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:14px}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:4px 10px;border-radius:20px;font-size:11.5px;color:rgba(255,255,255,.75);}
+.chip svg{width:12px;height:12px;fill:var(--teal-light)}
+
+/* ─── PAGE MAIN ──────────────────────────────────────── */
+.page-main{flex:1;padding:28px 24px}
+
+/* ─── STEPPER ────────────────────────────────────────── */
+.stepper{display:flex;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 24px;margin-bottom:24px;box-shadow:var(--shadow-xs);gap:0;}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:13px;left:calc(50% + 16px);right:calc(-50% + 16px);height:1.5px;background:var(--border);z-index:0;}
+.step.done:not(:last-child)::after{background:var(--teal)}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--text-muted);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:var(--t);flex-shrink:0;}
+.step.active .step-num{background:var(--navy);color:var(--white);box-shadow:0 0 0 3px rgba(10,22,40,.12)}
+.step.done .step-num{background:var(--teal);color:var(--white)}
+.step-label{font-size:10.5px;margin-top:6px;color:var(--text-muted);text-align:center;font-weight:500;line-height:1.3}
+.step.active .step-label{color:var(--navy);font-weight:600}
+.step.done .step-label{color:var(--teal)}
+
+/* ─── CARDS ─────────────────────────────────────────── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+.card+.card{margin-top:16px}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card-head h2{font-size:14.5px;font-weight:600;color:var(--navy);letter-spacing:-.2px}
+.card-head .icon-wrap{width:32px;height:32px;border-radius:8px;background:var(--teal-pale);border:1px solid var(--teal-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.card-head .icon-wrap svg{width:16px;height:16px;fill:var(--teal)}
+.card-body{padding:20px}
+.card-section{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+.card-section:last-child{margin-bottom:0}
+.card-section-head{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-sec);display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.5px;}
+.card-section-head svg{width:13px;height:13px;fill:var(--teal)}
+
+/* ─── FORMS ─────────────────────────────────────────── */
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:5px}
+label .req{color:var(--red);margin-left:2px}
+.input{width:100%;padding:9px 12px;border:1.5px solid var(--border-mid);border-radius:var(--r);font-size:13.5px;color:var(--text-primary);background:var(--white);transition:var(--t);outline:none;}
+.input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.1)}
+.input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.input.ok{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.08)}
+.input[readonly]{background:var(--surface);color:var(--text-sec);cursor:default}
+.hint{font-size:11.5px;color:var(--text-muted);margin-top:4px}
+.field-err{font-size:12px;color:var(--red);margin-top:5px;display:none;align-items:center;gap:4px}
+.field-err svg{width:12px;height:12px;fill:var(--red);flex-shrink:0}
+.field-err.show{display:flex}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+textarea.input{resize:vertical;min-height:80px}
+
+/* ─── BUTTONS ────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:var(--r);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:var(--t);letter-spacing:-.1px;}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn-primary{background:var(--navy);color:var(--white)}
+.btn-primary:hover{background:var(--navy-60);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-teal{background:var(--teal);color:var(--white)}
+.btn-teal:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-success{background:var(--green);color:var(--white)}
+.btn-success:hover{background:#047857;transform:translateY(-1px)}
+.btn-danger{background:var(--red);color:var(--white)}
+.btn-danger:hover{background:#b91c1c;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text-sec);border:1.5px solid var(--border-mid)}
+.btn-ghost:hover{background:var(--surface);color:var(--navy);border-color:var(--navy)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-lg{padding:11px 26px;font-size:14px}
+.btn-block{width:100%;justify-content:center}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+
+/* ─── ALERTS ─────────────────────────────────────────── */
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r);font-size:13px;margin-bottom:16px;border:1px solid;}
+.alert svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.alert-info{background:var(--blue-bg);border-color:#bfdbfe;color:#1e40af}.alert-info svg{fill:#3b82f6}
+.alert-success{background:var(--green-bg);border-color:#a7f3d0;color:#065f46}.alert-success svg{fill:var(--green)}
+.alert-warn{background:var(--amber-bg);border-color:#fcd34d;color:#92400e}.alert-warn svg{fill:var(--amber)}
+.alert-error{background:var(--red-bg);border-color:#fecaca;color:#991b1b}.alert-error svg{fill:var(--red)}
+.note-box{background:var(--teal-pale);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 var(--r) var(--r) 0;font-size:12.5px;color:#0f4c48;margin-bottom:14px;}
+
+/* ─── BADGES ─────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.2px;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.badge-low{background:var(--green-bg);color:var(--green)}.badge-low::before{background:var(--green)}
+.badge-med{background:var(--amber-bg);color:var(--amber)}.badge-med::before{background:var(--amber)}
+.badge-high{background:var(--red-bg);color:var(--red)}.badge-high::before{background:var(--red)}
+.badge-pending{background:var(--blue-bg);color:var(--blue)}.badge-pending::before{background:var(--blue)}
+.badge-approved{background:var(--green-bg);color:var(--green)}.badge-approved::before{background:var(--green)}
+.badge-rejected{background:var(--red-bg);color:var(--red)}.badge-rejected::before{background:var(--red)}
+
+/* ─── OTP ────────────────────────────────────────────── */
+.otp-row{display:flex;gap:10px;margin:12px 0}
+.otp-box{width:52px;height:56px;text-align:center;font-size:24px;font-weight:700;font-family:'DM Mono',monospace;border:1.5px solid var(--border-mid);border-radius:var(--r);outline:none;transition:var(--t);color:var(--navy);}
+.otp-box:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+
+/* ─── FILE UPLOAD ────────────────────────────────────── */
+.upload-area{border:1.5px dashed var(--border-mid);border-radius:var(--r);padding:18px 16px;text-align:center;cursor:pointer;transition:var(--t);background:var(--surface);position:relative;}
+.upload-area:hover{border-color:var(--teal);background:var(--teal-pale)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-area svg{width:28px;height:28px;fill:var(--text-muted);margin:0 auto 8px}
+.upload-area .u-label{font-size:13px;color:var(--text-sec)}.upload-area .u-label b{color:var(--teal)}
+.upload-area .u-hint{font-size:11px;color:var(--text-muted);margin-top:2px}
+.upload-done{display:none;align-items:center;gap:8px;background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--r);padding:8px 12px;font-size:12.5px;color:var(--green);margin-top:6px;}
+.upload-done svg{width:14px;height:14px;fill:var(--green);flex-shrink:0}
+.upload-processing{display:none;align-items:center;gap:8px;background:var(--blue-bg);border:1px solid #bfdbfe;border-radius:var(--r);padding:8px 12px;font-size:12.5px;color:var(--blue);margin-top:6px;}
+.upload-processing svg{width:14px;height:14px;fill:var(--blue);flex-shrink:0;animation:spin 1s linear infinite}
+.upload-processing.show{display:flex}
+.ocr-result{display:none;background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:10px 12px;margin-top:8px;font-size:12px;}
+.ocr-result.show{display:block}
+.ocr-result .ocr-title{font-weight:700;color:var(--teal);margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.ocr-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(13,148,136,.15);}
+.ocr-row:last-child{border-bottom:none}
+.ocr-label{color:var(--text-muted);font-size:11px}
+.ocr-value{font-weight:600;color:var(--navy);font-size:11.5px}
+
+/* ─── WEBCAM ─────────────────────────────────────────── */
+.cam-container{position:relative;background:#0d1117;border-radius:var(--r-xl);overflow:hidden;aspect-ratio:4/3;max-width:520px;margin:0 auto;box-shadow:var(--shadow-xl);border:1px solid rgba(255,255,255,.06);}
+#cam-video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.cam-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.face-oval{width:160px;height:210px;border:2.5px solid rgba(255,255,255,.35);border-radius:50%;transition:border-color .4s ease,box-shadow .4s ease;}
+.face-oval.recording{border-color:var(--teal-light);box-shadow:0 0 0 4px rgba(13,148,136,.25),0 0 24px rgba(13,148,136,.2);animation:oval-pulse 2s ease infinite;}
+.face-oval.verified{border-color:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.25);}
+@keyframes oval-pulse{0%,100%{box-shadow:0 0 0 4px rgba(13,148,136,.25),0 0 24px rgba(13,148,136,.2)}50%{box-shadow:0 0 0 8px rgba(13,148,136,.1),0 0 40px rgba(13,148,136,.15)}}
+.cam-instruction{margin-top:14px;font-size:13px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.5);padding:5px 14px;border-radius:20px;backdrop-filter:blur(4px);}
+.cam-rec-dot{position:absolute;top:14px;left:14px;display:none;align-items:center;gap:6px;background:rgba(0,0,0,.6);padding:5px 10px;border-radius:20px;backdrop-filter:blur(4px);}
+.cam-rec-dot svg{width:8px;height:8px;fill:#ef4444;animation:blink .9s ease infinite}
+.cam-rec-dot span{font-size:11px;color:rgba(255,255,255,.85);font-family:'DM Mono',monospace}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.cam-timer{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:var(--teal-light);display:none;text-shadow:0 2px 8px rgba(0,0,0,.6);}
+.cam-no-support{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:13px;text-align:center;padding:20px;}
+.cam-no-support svg{width:40px;height:40px;fill:rgba(255,255,255,.2);margin-bottom:12px}
+.cam-controls{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.checklist{list-style:none}
+.checklist li{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;color:var(--text-sec);border-bottom:1px solid var(--border);}
+.checklist li:last-child{border-bottom:none}
+.checklist li svg{width:15px;height:15px;flex-shrink:0}
+.chk-off svg{fill:var(--border-mid)}.chk-on svg{fill:var(--teal)}
+
+/* ─── CAPTURED PHOTO ─────────────────────────────────── */
+.captured-photo{width:100%;border-radius:var(--r);margin-top:10px;border:2px solid var(--teal);display:none;}
+.captured-photo.show{display:block}
+.ai-analysis{background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:12px;margin-top:10px;display:none;}
+.ai-analysis.show{display:block}
+.ai-analysis-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);margin-bottom:8px}
+
+/* ─── SCORE ──────────────────────────────────────────── */
+.score-row{display:flex;align-items:center;gap:16px;padding:16px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:14px;}
+.score-ring{width:68px;height:68px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:3px solid;}
+.score-ring.hi{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.score-ring.mid{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+.score-ring.lo{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.score-ring .sn{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.score-ring .sd{font-size:10px;opacity:.7}
+
+/* ─── EXPLAIN LIST ────────────────────────────────────── */
+.explain-list{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.explain-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;}
+.explain-item:last-child{border-bottom:none}
+.explain-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-neg{background:var(--red)}.dot-pos{background:var(--green)}.dot-warn{background:var(--amber)}
+.explain-text{flex:1;color:var(--text-sec)}
+.explain-wt{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted)}
+
+/* ─── DETAIL ROWS ─────────────────────────────────────── */
+.detail-row{display:flex;padding:9px 16px;border-bottom:1px solid var(--border);gap:14px;align-items:center;}
+.detail-row:last-child{border-bottom:none}
+.dl{font-size:12px;color:var(--text-muted);min-width:150px;flex-shrink:0}
+.dv{font-size:13px;font-weight:500;color:var(--text-primary)}
+.dv.mono{font-family:'DM Mono',monospace;letter-spacing:.5px}
+.pass{color:var(--green)}.fail{color:var(--red)}.warn{color:var(--amber)}
+
+/* ─── TABLE ──────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--white)}
+thead{background:var(--navy)}
+th{padding:11px 14px;text-align:left;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.75);white-space:nowrap;letter-spacing:.3px;text-transform:uppercase}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+/* ─── STAT CARDS ─────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 16px;box-shadow:var(--shadow-xs);transition:var(--t);}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.stat-card .slabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:10px}
+.stat-card .sval{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;line-height:1;color:var(--navy)}
+.stat-card .ssub{font-size:11.5px;color:var(--text-muted);margin-top:4px}
+.stat-card.t-teal .sval{color:var(--teal)}.stat-card.t-green .sval{color:var(--green)}.stat-card.t-red .sval{color:var(--red)}.stat-card.t-amber .sval{color:var(--amber)}
+.stat-card.accent-top{border-top:2.5px solid var(--red)}
+
+/* ─── FILTER BAR ─────────────────────────────────────── */
+.filter-bar{display:flex;gap:10px;align-items:center;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.filter-bar label{font-size:11.5px;font-weight:600;color:var(--text-muted)}
+.filter-sel{padding:6px 10px;border:1.5px solid var(--border-mid);border-radius:var(--r);font-size:12.5px;color:var(--text-primary);background:var(--white);outline:none;transition:var(--t);}
+.filter-sel:focus{border-color:var(--teal)}
+
+/* ─── PROGRESS BAR ───────────────────────────────────── */
+.pbar{background:var(--border);border-radius:20px;height:5px;overflow:hidden;width:72px}
+.pbar-fill{height:100%;border-radius:20px;transition:width .6s ease}
+
+/* ─── RECOMMENDATION ─────────────────────────────────── */
+.rec-box{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:var(--r);border:1px solid;font-size:13px;margin-top:12px;}
+.rec-box svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.rec-approve{background:var(--green-bg);border-color:#a7f3d0;color:#065f46}.rec-approve svg{fill:var(--green)}
+.rec-review{background:var(--amber-bg);border-color:#fcd34d;color:#92400e}.rec-review svg{fill:var(--amber)}
+.rec-reject{background:var(--red-bg);border-color:#fecaca;color:#991b1b}.rec-reject svg{fill:var(--red)}
+
+/* ─── MODAL ──────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(10,22,40,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r-xl);max-width:460px;width:90%;box-shadow:var(--shadow-xl);overflow:hidden;animation:modal-in .2s ease}
+@keyframes modal-in{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:none}}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal-head h3{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-body{padding:20px;font-size:13.5px;color:var(--text-sec);line-height:1.65}
+.modal-foot{padding:14px 20px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ─── LOGIN ──────────────────────────────────────────── */
+.login-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:linear-gradient(160deg,var(--navy) 0%,var(--navy-60) 100%)}
+.login-card{background:var(--white);border-radius:var(--r-xl);width:400px;max-width:100%;box-shadow:var(--shadow-xl);overflow:hidden}
+.login-head{padding:28px 28px 20px;text-align:center}
+.login-logo-wrap{width:52px;height:52px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:var(--shadow-md)}
+.login-logo-wrap svg{width:28px;height:28px;fill:var(--teal-light)}
+.login-head h2{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.login-head p{font-size:12.5px;color:var(--text-muted)}
+.login-body{padding:0 28px 28px}
+.demo-hint{background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:9px 12px;font-size:12px;color:#0f4c48;text-align:center;margin-bottom:18px}
+
+/* ─── SUCCESS ────────────────────────────────────────── */
+.success-wrap{text-align:center;padding:48px 24px}
+.success-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:var(--shadow-md)}
+.success-icon svg{width:36px;height:36px}
+.si-green{background:var(--green-bg);border:2px solid var(--green)}.si-green svg{fill:var(--green)}
+.si-red{background:var(--red-bg);border:2px solid var(--red)}.si-red svg{fill:var(--red)}
+.success-wrap h2{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px}
+.success-wrap .sub{font-size:14px;color:var(--text-sec);max-width:460px;margin:0 auto;line-height:1.7}
+.sum-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:0;margin:24px auto;max-width:420px;overflow:hidden}
+.sum-row{display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--border);font-size:13px}
+.sum-row:last-child{border-bottom:none}
+.sum-row .sk{color:var(--text-muted)}.sum-row .sv{font-weight:600;color:var(--text-primary)}
+
+/* ─── REDIRECT ───────────────────────────────────────── */
+.redirect-wrap{text-align:center;padding:40px 24px}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── ADMIN NAV ──────────────────────────────────────── */
+.admin-nav-bar{background:var(--navy);padding:0 24px;display:flex;align-items:center;gap:2px;}
+.admin-nav-bar a{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.55);padding:10px 14px;border-bottom:2px solid transparent;transition:var(--t);text-decoration:none;display:block;}
+.admin-nav-bar a:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.05);text-decoration:none}
+.admin-nav-bar a.active{color:var(--teal-light);border-bottom-color:var(--teal)}
+
+/* ─── VIDEO/PHOTO PREVIEW ────────────────────────────── */
+.vid-preview{background:#0d1117;border-radius:var(--r);padding:32px 16px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.08);transition:var(--t);}
+.vid-preview:hover{background:#161b22}
+.play-btn{width:44px;height:44px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;transition:var(--t)}
+.play-btn svg{width:18px;height:18px;fill:rgba(255,255,255,.8)}
+.vid-preview p{font-size:12px;color:rgba(255,255,255,.45)}
+
+/* ─── REJECT PANEL ───────────────────────────────────── */
+.reject-panel{display:none;padding:16px;background:var(--red-bg);border:1px solid #fecaca;border-radius:var(--r);margin-top:14px}
+.reject-panel.show{display:block}
+.reject-panel-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:14px}
+
+/* ─── TWO-COL ────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.footer{background:var(--navy);color:rgba(255,255,255,.5);padding:28px 24px 16px;margin-top:auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:24px}
+.footer-brand .fn{font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px}
+.footer-brand p{font-size:12px;line-height:1.7;color:rgba(255,255,255,.45)}
+.footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.35);margin-bottom:10px;font-weight:600}
+.footer-col ul{list-style:none}
+.footer-col ul li{margin-bottom:5px}
+.footer-col ul li a{color:rgba(255,255,255,.45);font-size:12px;transition:var(--t)}
+.footer-col ul li a:hover{color:var(--teal-light);text-decoration:none}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:14px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;flex-wrap:wrap;gap:8px}
+.footer-bottom a{color:rgba(255,255,255,.35)}
+.footer-links{display:flex;gap:16px}
+
+/* ─── AI LOADING ─────────────────────────────────────── */
+.ai-loading{display:none;text-align:center;padding:20px;background:var(--teal-pale);border-radius:var(--r);border:1px solid var(--teal-mid);margin-top:12px}
+.ai-loading.show{display:block}
+.ai-loading p{font-size:13px;color:var(--teal);margin-top:8px;font-weight:500}
+
+/* ─── MISC ────────────────────────────────────────────── */
+.mono{font-family:'DM Mono',monospace;letter-spacing:.5px}
+.text-muted{color:var(--text-muted);font-size:12px}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mt-24{margin-top:24px}
+.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.help-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.help-box h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.help-box p{font-size:12.5px;color:var(--text-sec);line-height:1.8}
+.demo-tag{position:fixed;bottom:14px;right:14px;background:var(--navy);color:var(--teal-light);font-size:10.5px;padding:5px 12px;border-radius:20px;letter-spacing:.8px;z-index:999;pointer-events:none;font-weight:600;font-family:'DM Mono',monospace;box-shadow:var(--shadow-md)}
+.ic{display:inline-block;vertical-align:middle}
+.sample-doc{border:1px dashed var(--border);border-radius:var(--r);overflow:hidden;margin-top:12px}
+.sample-doc-label{padding:5px 10px;background:var(--surface);font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<!-- SVG SPRITE -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2l8 4v5c0 5.25-3.5 10.15-8 12-4.5-1.85-8-6.75-8-12V6l8-4z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M12 15.2A3.2 3.2 0 1012 8.8a3.2 3.2 0 000 6.4zM9 2L7.17 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2h-3.17L15 2H9zm3 15a5 5 0 110-10 5 5 0 010 10z"/></symbol>
+  <symbol id="i-sign" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM13 13v4h-2v-4H8l4-4 4 4h-3z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
+  <symbol id="i-ai" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-6h2v2h-2zm0-8h2v6h-2z"/></symbol>
+</svg>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 1 · ACCOUNT VERIFICATION                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen active" id="sc-verify">
+  <div class="topbar">
+    <div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID — Secure Identity Validation Platform</div>
+    <div class="topbar-right">
+      <a href="#">Accessibility</a>
+      <a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a>
+    </div>
+  </div>
+  <div class="header">
+    <div class="header-logo">
+      <div class="logo-mark"><svg><use href="#i-shield"/></svg></div>
+      <div class="logo-info">
+        <div class="brand">VerifyID</div>
+        <div class="tagline">Secure · Fast · Reliable Identity Validation</div>
+      </div>
+    </div>
+    <div class="header-portal"><div><div class="p-label">Identity Validation</div><div class="p-name">Depositor Portal</div></div></div>
+  </div>
+  <div class="header-nav-strip">
+    <a href="#" class="active">Depositors</a>
+    <a href="#">Institutions</a>
+    <a href="#">About</a>
+    <a href="#">Help</a>
+  </div>
+  <div class="breadcrumb">
+    <a href="#">Home</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg>
+    <a href="#">Depositors</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg>
+    <span>Identity Validation Portal</span>
+  </div>
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Depositor Identity Validation Portal</h1>
+      <p>Securely validate your identity to process your deposit insurance claim using AI-powered document verification</p>
+      <div class="hero-chips">
+        <div class="chip"><svg><use href="#i-lock"/></svg> SSL Secured</div>
+        <div class="chip"><svg><use href="#i-shield"/></svg> AI-Powered Verification</div>
+        <div class="chip"><svg><use href="#i-ai"/></svg> Real-time OCR Analysis</div>
+        <div class="chip">Available 24×7</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-main">
+    <div style="max-width:960px;margin:0 auto">
+      <div class="stepper">
+        <div class="step active"><div class="step-num">1</div><div class="step-label">Account<br>Verify</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-label">KYC<br>Details</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-label">Liveness<br>Check</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-label">eSign</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:20px">
+        <div>
+          <!-- FORM STATE -->
+          <div class="card" id="v-form">
+            <div class="card-head">
+              <div class="icon-wrap"><svg><use href="#i-shield"/></svg></div>
+              <h2>Step 1: Account Verification</h2>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-info"><svg><use href="#i-info"/></svg>
+                <div>Please have your account number ready. An OTP will be sent to your registered mobile number.</div>
+              </div>
+              <div class="form-group">
+                <label for="v-inst">Select Your Institution <span class="req">*</span></label>
+                <select class="input" id="v-inst">
+                  <option value="">— Select Registered Institution —</option>
+                  <option value="fnfs">First National Financial Services</option>
+                  <option value="mcu">Metro Credit Union</option>
+                  <option value="hsb">Heritage Savings Bank</option>
+                  <option value="cfc">Citizen Finance Corp</option>
+                </select>
+                <div class="field-err" id="e-inst"><svg><use href="#i-warn"/></svg> Please select your institution.</div>
+              </div>
+              <div class="form-group">
+                <label for="v-acc">Account Number <span class="req">*</span></label>
+                <input type="text" class="input" id="v-acc" placeholder="e.g. ACC001234" maxlength="18">
+                <div class="hint">Enter your account number as provided by your institution</div>
+                <div class="field-err" id="e-acc"><svg><use href="#i-warn"/></svg> Please enter a valid account number.</div>
+              </div>
+              <div class="note-box">💡 <strong>Demo accounts:</strong> Try ACC001234, ACC002345, ACC003456 ... up to ACC020123</div>
+              <button class="btn btn-teal btn-lg btn-block" onclick="doValidateAcc()">
+                <svg><use href="#i-shield"/></svg> Validate Account
+              </button>
+            </div>
+          </div>
+
+          <!-- NOT FOUND -->
+          <div class="card" id="v-notfound" style="display:none">
+            <div class="card-head" style="background:var(--red-bg);border-bottom-color:#fecaca">
+              <div class="icon-wrap" style="background:var(--red-bg);border-color:#fecaca"><svg style="fill:var(--red)"><use href="#i-x"/></svg></div>
+              <h2 style="color:var(--red)">Account Not Found</h2>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-error"><svg><use href="#i-x"/></svg>
+                <div><strong>The entered account number was not found.</strong><br>Please verify the account number and selected institution.</div>
+              </div>
+              <div class="help-box">
+                <h4>Need Help?</h4>
+                <p><strong>Phone:</strong> 1800-XXX-XXXX (Toll Free)<br><strong>Email:</strong> support@verifyid.in<br><strong>Hours:</strong> Mon–Fri, 9:00 – 18:00</p>
+              </div>
+              <button class="btn btn-ghost mt-16" onclick="hide('v-notfound');show('v-form')">← Try Again</button>
+            </div>
+          </div>
+
+          <!-- OTP KNOWN MOBILE -->
+          <div class="card" id="v-otp-known" style="display:none">
+            <div class="card-head">
+              <div class="icon-wrap"><svg><use href="#i-lock"/></svg></div>
+              <h2>OTP Verification</h2>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-success"><svg><use href="#i-check"/></svg>
+                <div>Account found! OTP sent to registered mobile: <strong class="mono" id="otp-mob-display">XXXXXX7291</strong></div>
+              </div>
+              <div class="note-box">💡 Demo OTP: <strong>1 2 3 4</strong></div>
+              <label>Enter 4-digit OTP <span class="req">*</span></label>
+              <div class="otp-row">
+                <input type="text" class="otp-box" id="ok1" maxlength="1" oninput="omv(this,'ok2')">
+                <input type="text" class="otp-box" id="ok2" maxlength="1" oninput="omv(this,'ok3')">
+                <input type="text" class="otp-box" id="ok3" maxlength="1" oninput="omv(this,'ok4')">
+                <input type="text" class="otp-box" id="ok4" maxlength="1" oninput="omv(this,null)">
+              </div>
+              <div class="field-err" id="e-otp-k"><svg><use href="#i-warn"/></svg> Invalid OTP. Please try again.</div>
+              <div id="rtimer" style="font-size:12px;color:var(--text-muted);margin-top:6px">Resend OTP in <strong id="tc">30</strong>s</div>
+              <button id="rbtn" style="display:none" class="btn btn-ghost btn-sm mt-8" onclick="resetTimer()">Resend OTP</button>
+              <div style="margin-top:14px">
+                <button class="btn btn-teal" onclick="doOTP('k')">Verify &amp; Continue →</button>
+              </div>
+              <p class="text-muted mt-12">Maximum 3 attempts. Account locked after repeated failures.</p>
+            </div>
+          </div>
+
+          <!-- LOCKED -->
+          <div class="card" id="v-locked" style="display:none">
+            <div class="card-head" style="background:var(--red-bg);border-bottom-color:#fecaca">
+              <div class="icon-wrap" style="background:var(--red-bg);border-color:#fecaca"><svg style="fill:var(--red)"><use href="#i-lock"/></svg></div>
+              <h2 style="color:var(--red)">Account Temporarily Locked</h2>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-error"><svg><use href="#i-lock"/></svg>
+                <div><strong>Your session has been locked</strong> after 3 incorrect OTP attempts. Please contact support.</div>
+              </div>
+              <div class="help-box">
+                <h4>Contact Support</h4>
+                <p><strong>Phone:</strong> 1800-XXX-XXXX<br><strong>Email:</strong> support@verifyid.in</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div>
+          <div class="card mb-16">
+            <div class="card-head"><div class="icon-wrap"><svg><use href="#i-info"/></svg></div><h2>How it Works</h2></div>
+            <div class="card-body" style="padding:16px">
+              <ol style="font-size:12.5px;line-height:2;padding-left:16px;color:var(--text-sec)">
+                <li>Select institution &amp; enter account number</li>
+                <li>Verify via OTP on your mobile</li>
+                <li>Submit PAN &amp; Aadhaar — <strong>AI reads them automatically</strong></li>
+                <li>Complete liveness detection via camera</li>
+                <li>eSign &amp; submit your claim</li>
+              </ol>
+              <div class="divider"></div>
+              <p style="font-size:11.5px;color:var(--text-muted)">🤖 Powered by AI for instant document verification</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="icon-wrap"><svg><use href="#i-doc"/></svg></div><h2>Registered Institutions</h2></div>
+            <div class="card-body" style="padding:0">
+              <ul style="list-style:none">
+                <li style="padding:9px 16px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-sec)">First National Financial Services</li>
+                <li style="padding:9px 16px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-sec)">Metro Credit Union</li>
+                <li style="padding:9px 16px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-sec)">Heritage Savings Bank</li>
+                <li style="padding:9px 16px;font-size:12.5px;color:var(--text-sec)">Citizen Finance Corp</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-grid" style="max-width:960px;margin:0 auto">
+      <div class="footer-brand"><div class="fn">VerifyID</div><p>A secure, AI-powered identity validation platform for financial institutions. Built for accuracy, speed and compliance.</p></div>
+      <div class="footer-col"><h4>Depositors</h4><ul><li><a href="#">Identity Verification</a></li><li><a href="#">Claim Status</a></li><li><a href="#">FAQs</a></li></ul></div>
+      <div class="footer-col"><h4>Institutions</h4><ul><li><a href="#">Admin Portal</a></li><li><a href="#">API Docs</a></li><li><a href="#">Compliance</a></li></ul></div>
+      <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Help Centre</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+    </div>
+    <div class="footer-bottom" style="max-width:960px;margin:0 auto">
+      <span>© 2026 VerifyID. All rights reserved.</span>
+      <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Accessibility</a></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 2 · KYC DETAILS                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-kyc">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID — Identity Validation Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a></div></div>
+  <div class="header">
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Secure · Fast · Reliable Identity Validation</div></div></div>
+    <div class="header-portal"><div><div class="p-label">Step 2 of 5</div><div class="p-name">KYC &amp; Identity Details</div></div></div>
+  </div>
+  <div class="breadcrumb"><a href="#">Home</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg><a href="#">Depositors</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg><span>KYC Details</span></div>
+  <div class="hero"><div class="hero-inner"><h1>Identity &amp; KYC Details</h1><p>Upload your PAN and Aadhaar — our AI will extract and verify the information automatically</p></div></div>
+
+  <div class="page-main">
+    <div style="max-width:960px;margin:0 auto">
+      <div class="stepper">
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Account Verify</div></div>
+        <div class="step active"><div class="step-num">2</div><div class="step-label">KYC Details</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-label">Liveness</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-label">eSign</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+
+      <!-- CLAIM SUMMARY -->
+      <div class="card mb-20">
+        <div class="card-head"><div class="icon-wrap"><svg><use href="#i-doc"/></svg></div><h2>Claim Summary</h2></div>
+        <div class="card-body" style="padding:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr">
+            <div>
+              <div class="detail-row"><div class="dl">Claim Number</div><div class="dv" style="color:var(--navy);font-weight:700" id="kyc-claim-num">—</div></div>
+              <div class="detail-row"><div class="dl">Nature of Account</div><div class="dv" id="kyc-acc-nature">—</div></div>
+              <div class="detail-row"><div class="dl">UCIC Number</div><div class="dv mono" id="kyc-ucic">—</div></div>
+            </div>
+            <div>
+              <div class="detail-row"><div class="dl">Account Number</div><div class="dv mono" id="kyc-acc-num">—</div></div>
+              <div class="detail-row"><div class="dl">Institution</div><div class="dv" id="kyc-inst">—</div></div>
+              <div class="detail-row"><div class="dl">Claim Amount</div><div class="dv" style="color:var(--teal);font-weight:700;font-size:15px" id="kyc-amount">—</div></div>
+            </div>
+          </div>
+          <div style="padding:10px 16px 14px"><div class="note-box" style="margin:0">Amount as provided by the institution, subject to verification and applicable insurance limits.</div></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- PAN SECTION -->
+        <div class="card">
+          <div class="card-head"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><h2>Section 1: PAN Details</h2></div>
+          <div class="card-body">
+            <div class="alert alert-info" style="font-size:12px;padding:9px 12px">
+              <svg><use href="#i-ai"/></svg>
+              <div>🤖 <strong>AI OCR:</strong> Upload your PAN card image and AI will automatically extract your details.</div>
+            </div>
+            <div class="form-group">
+              <label>Upload PAN Card <span class="req">*</span> <span style="font-size:11px;color:var(--text-muted);font-weight:400">(JPG/PNG/PDF, max 5MB)</span></label>
+              <div class="upload-area" id="pan-upload-area">
+                <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="pan-file" onchange="handlePANUpload(this)">
+                <svg><use href="#i-upload"/></svg>
+                <div class="u-label"><b>Click to upload</b> PAN card</div>
+                <div class="u-hint">JPG, PNG, PDF • Max 5 MB • AI will read it automatically</div>
+              </div>
+              <div class="upload-processing" id="pan-processing">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                AI is reading your PAN card…
+              </div>
+              <div class="upload-done" id="pan-done"><svg><use href="#i-check"/></svg><strong id="pan-filename">PAN_Card.jpg</strong> — uploaded &amp; processed</div>
+              <div class="field-err" id="e-pan-up"><svg><use href="#i-warn"/></svg> Please upload your PAN card.</div>
+            </div>
+
+            <!-- OCR RESULT -->
+            <div class="ocr-result" id="pan-ocr-result">
+              <div class="ocr-title">🤖 AI Extracted Data</div>
+              <div class="ocr-row"><div class="ocr-label">Name</div><div class="ocr-value" id="pan-ocr-name">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">PAN Number</div><div class="ocr-value" id="pan-ocr-pan">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Date of Birth</div><div class="ocr-value" id="pan-ocr-dob">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Confidence</div><div class="ocr-value" id="pan-ocr-conf">—</div></div>
+            </div>
+
+            <div class="form-group mt-12">
+              <label for="pan">Confirm PAN Number <span class="req">*</span></label>
+              <input type="text" class="input" id="pan" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase;font-family:'DM Mono',monospace;letter-spacing:2px" oninput="livePAN(this)">
+              <div class="hint">Auto-filled by AI — please verify</div>
+              <div class="field-err" id="e-pan"><svg><use href="#i-warn"/></svg> Invalid PAN format. Expected: ABCDE1234F</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AADHAAR SECTION -->
+        <div class="card">
+          <div class="card-head"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><h2>Section 2: Aadhaar Details</h2></div>
+          <div class="card-body">
+            <div class="alert alert-info" style="font-size:12px;padding:9px 12px">
+              <svg><use href="#i-ai"/></svg>
+              <div>🤖 <strong>AI OCR:</strong> Upload both sides of your Aadhaar card for complete verification.</div>
+            </div>
+            <div class="form-group">
+              <label>Upload Aadhaar — Front <span class="req">*</span></label>
+              <div class="upload-area">
+                <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="af-file" onchange="handleAadhaarUpload(this,'front')">
+                <svg><use href="#i-upload"/></svg>
+                <div class="u-label"><b>Click to upload</b> Aadhaar front</div>
+                <div class="u-hint">JPG, PNG, PDF • Max 5 MB</div>
+              </div>
+              <div class="upload-processing" id="af-processing">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                AI is reading your Aadhaar…
+              </div>
+              <div class="upload-done" id="af-done"><svg><use href="#i-check"/></svg><strong id="af-filename">Aadhaar_Front.jpg</strong> — uploaded &amp; processed</div>
+              <div class="field-err" id="e-af"><svg><use href="#i-warn"/></svg> Please upload Aadhaar front.</div>
+            </div>
+
+            <!-- Aadhaar OCR Result -->
+            <div class="ocr-result" id="aadh-ocr-result">
+              <div class="ocr-title">🤖 AI Extracted Data</div>
+              <div class="ocr-row"><div class="ocr-label">Name</div><div class="ocr-value" id="aadh-ocr-name">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Aadhaar (Masked)</div><div class="ocr-value" id="aadh-ocr-num">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Date of Birth</div><div class="ocr-value" id="aadh-ocr-dob">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Gender</div><div class="ocr-value" id="aadh-ocr-gender">—</div></div>
+              <div class="ocr-row"><div class="ocr-label">Confidence</div><div class="ocr-value" id="aadh-ocr-conf">—</div></div>
+            </div>
+
+            <div class="form-group mt-12">
+              <label>Upload Aadhaar — Back <span class="req">*</span></label>
+              <div class="upload-area">
+                <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="ab-file" onchange="handleAadhaarUpload(this,'back')">
+                <svg><use href="#i-upload"/></svg>
+                <div class="u-label"><b>Click to upload</b> Aadhaar back</div>
+                <div class="u-hint">JPG, PNG, PDF • Max 5 MB</div>
+              </div>
+              <div class="upload-done" id="ab-done"><svg><use href="#i-check"/></svg><strong id="ab-filename">Aadhaar_Back.jpg</strong> — uploaded</div>
+              <div class="field-err" id="e-ab"><svg><use href="#i-warn"/></svg> Please upload Aadhaar back.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="aadh">Confirm Aadhaar Number <span class="req">*</span></label>
+              <input type="text" class="input" id="aadh" placeholder="XXXX XXXX XXXX" maxlength="14" style="font-family:'DM Mono',monospace;letter-spacing:2px" oninput="liveAadhaar(this)">
+              <div class="hint">Auto-filled by AI — please verify</div>
+              <div class="field-err" id="e-aadh"><svg><use href="#i-warn"/></svg> Invalid Aadhaar. Must be 12 digits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px;padding-bottom:4px">
+        <div class="field-err" id="e-kyc-global" style="justify-content:center;margin-bottom:12px"><svg><use href="#i-warn"/></svg> Please complete all required fields and uploads before proceeding.</div>
+        <button class="btn btn-teal btn-lg" onclick="doKYC()">
+          <svg><use href="#i-cam"/></svg> Proceed to Liveness Check
+        </button>
+        <p class="text-muted mt-8">All data is encrypted and processed securely</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 3 · LIVENESS DETECTION                      -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-live">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID — Identity Validation Portal</div></div>
+  <div class="header">
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Secure · Fast · Reliable</div></div></div>
+    <div class="header-portal"><div><div class="p-label">Step 3 of 5</div><div class="p-name">Liveness Detection</div></div></div>
+  </div>
+  <div class="hero"><div class="hero-inner"><h1>Liveness Detection</h1><p>Verify your physical presence — AI will analyse your face in real-time</p></div></div>
+
+  <div class="page-main">
+    <div style="max-width:960px;margin:0 auto">
+      <div class="stepper">
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Account Verify</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">KYC Details</div></div>
+        <div class="step active"><div class="step-num">3</div><div class="step-label">Liveness</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-label">eSign</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:20px">
+        <div>
+          <div class="alert alert-info" id="cam-perm-notice">
+            <svg><use href="#i-cam"/></svg>
+            <div><strong>Camera access required.</strong> Your browser will prompt for permission. A photo will be taken and analysed by AI for liveness verification.</div>
+          </div>
+
+          <div class="cam-container" id="cam-container">
+            <video id="cam-video" autoplay playsinline muted></video>
+            <div class="cam-no-support" id="cam-no-support" style="display:none">
+              <svg><use href="#i-cam"/></svg>
+              <strong style="margin-bottom:6px;color:rgba(255,255,255,.7)">Camera not available</strong>
+              <span>Please allow camera access in your browser settings.</span>
+            </div>
+            <div class="cam-overlay">
+              <div class="face-oval" id="face-oval"></div>
+              <div class="cam-instruction" id="cam-instr">Position your face within the oval</div>
+            </div>
+            <div class="cam-rec-dot" id="cam-rec-dot">
+              <svg><use href="#i-rec"/></svg>
+              <span id="cam-rec-label">REC</span>
+            </div>
+            <div class="cam-timer" id="cam-timer">0s</div>
+          </div>
+
+          <!-- Captured photo preview -->
+          <div style="max-width:520px;margin:10px auto 0">
+            <img id="captured-photo" class="captured-photo" alt="Captured photo">
+            <div class="ai-analysis" id="ai-face-result">
+              <div class="ai-analysis-title">🤖 AI Face Analysis Result</div>
+              <div id="ai-face-content"></div>
+            </div>
+          </div>
+
+          <div class="cam-controls" id="ctrl-idle">
+            <button class="btn btn-teal btn-lg" onclick="startCam()"><svg><use href="#i-cam"/></svg> Start Camera</button>
+          </div>
+          <div class="cam-controls" id="ctrl-rec" style="display:none">
+            <button class="btn btn-primary btn-lg" onclick="capturePhoto()">📸 Capture Photo &amp; Analyse</button>
+            <button class="btn btn-ghost" onclick="stopCam(false)">Stop Camera</button>
+          </div>
+          <div class="cam-controls" id="ctrl-done" style="display:none">
+            <button class="btn btn-ghost" onclick="retakeCam()">↩ Retake</button>
+            <button class="btn btn-teal btn-lg" onclick="go('sc-esign')">Continue to eSign →</button>
+          </div>
+
+          <div class="alert alert-success mt-16" id="live-ok" style="display:none">
+            <svg><use href="#i-check"/></svg>
+            <div><strong id="live-ok-text">Liveness check passed!</strong></div>
+          </div>
+          <div class="alert alert-warn mt-16" id="live-warn" style="display:none">
+            <svg><use href="#i-warn"/></svg>
+            <div><strong id="live-warn-text">Please retake — ensure good lighting and face clearly visible.</strong></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-head"><div class="icon-wrap"><svg><use href="#i-doc"/></svg></div><h2>Instructions</h2></div>
+            <div class="card-body" style="padding:16px">
+              <ol style="font-size:13px;line-height:2.2;padding-left:16px;color:var(--text-sec)">
+                <li>Ensure <strong>good lighting</strong></li>
+                <li>Remove glasses or face coverings</li>
+                <li>Look directly at the camera</li>
+                <li>Keep face within the oval</li>
+                <li>Click <strong>Capture Photo</strong></li>
+                <li>AI will analyse instantly</li>
+              </ol>
+              <div class="divider"></div>
+              <div class="note-box">🔒 Photo is processed by AI for identity verification only.</div>
+              <div style="margin-top:14px">
+                <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Checklist</div>
+                <ul class="checklist" id="chklist">
+                  <li class="chk-off" id="chk1"><svg><use href="#i-check"/></svg> Camera access granted</li>
+                  <li class="chk-off" id="chk2"><svg><use href="#i-check"/></svg> Face within frame</li>
+                  <li class="chk-off" id="chk3"><svg><use href="#i-check"/></svg> Photo captured</li>
+                  <li class="chk-off" id="chk4"><svg><use href="#i-check"/></svg> AI liveness confirmed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 4 · eSIGN                                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-esign">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID — Identity Validation Portal</div></div>
+  <div class="header">
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Secure · Fast · Reliable</div></div></div>
+    <div class="header-portal"><div><div class="p-label">Step 4 of 5</div><div class="p-name">eSign</div></div></div>
+  </div>
+  <div class="hero"><div class="hero-inner"><h1>eSign via OTP</h1><p>Digitally sign your claim form using Aadhaar OTP</p></div></div>
+
+  <div class="page-main">
+    <div style="max-width:560px;margin:0 auto">
+      <div class="stepper">
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Verify</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">KYC</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Liveness</div></div>
+        <div class="step active"><div class="step-num">4</div><div class="step-label">eSign</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+
+      <div class="card" id="esign-redir">
+        <div class="card-head"><div class="icon-wrap"><svg><use href="#i-sign"/></svg></div><h2>Connecting to eSign Gateway</h2></div>
+        <div class="card-body">
+          <div class="redirect-wrap">
+            <div class="spinner"></div>
+            <p style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:5px">Connecting to eSign Gateway…</p>
+            <p class="text-muted">Securely preparing your document for Aadhaar-based signing</p>
+          </div>
+          <div class="note-box">🔒 Your document is being prepared for secure digital signing.</div>
+          <button class="btn btn-teal btn-lg btn-block mt-16" onclick="showEsignOTP()">Proceed to eSign →</button>
+          <p class="text-muted mt-8" style="text-align:center">By proceeding you consent to Aadhaar-based eSign</p>
+        </div>
+      </div>
+
+      <div class="card" id="esign-otp" style="display:none">
+        <div class="card-head" style="background:var(--navy)">
+          <div class="icon-wrap" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)"><svg style="fill:rgba(255,255,255,.8)"><use href="#i-sign"/></svg></div>
+          <div>
+            <h2 style="color:#fff">eSign Gateway</h2>
+            <div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:1px">Secure Aadhaar-based Digital Signature</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info"><svg><use href="#i-info"/></svg><div>OTP sent to your Aadhaar-linked mobile number</div></div>
+          <div class="note-box">💡 Demo OTP: <strong>1 2 3 4</strong></div>
+          <label>Enter Aadhaar OTP <span class="req">*</span></label>
+          <div class="otp-row">
+            <input type="text" class="otp-box" id="eo1" maxlength="1" oninput="omv(this,'eo2')">
+            <input type="text" class="otp-box" id="eo2" maxlength="1" oninput="omv(this,'eo3')">
+            <input type="text" class="otp-box" id="eo3" maxlength="1" oninput="omv(this,'eo4')">
+            <input type="text" class="otp-box" id="eo4" maxlength="1" oninput="omv(this,null)">
+          </div>
+          <div class="field-err" id="e-esign"><svg><use href="#i-warn"/></svg> Invalid OTP. <span id="esign-rem">2</span> attempts remaining.</div>
+          <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-teal btn-lg" onclick="doEsignOTP()"><svg><use href="#i-sign"/></svg> Authorise &amp; eSign</button>
+            <button class="btn btn-ghost btn-sm" onclick="go('sc-live')">← Back</button>
+          </div>
+          <div class="divider"></div>
+          <p style="font-size:11px;color:var(--text-muted);line-height:1.7">By clicking "Authorise &amp; eSign" you provide consent for Aadhaar-based electronic signature.</p>
+        </div>
+      </div>
+
+      <div class="card mt-12" id="esign-fail" style="display:none">
+        <div class="card-head" style="background:var(--red-bg);border-bottom-color:#fecaca">
+          <div class="icon-wrap" style="background:var(--red-bg);border-color:#fecaca"><svg style="fill:var(--red)"><use href="#i-x"/></svg></div>
+          <h2 style="color:var(--red)">eSign Failed</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-error"><svg><use href="#i-x"/></svg><div>eSign failed after 2 attempts. Please restart from liveness check.</div></div>
+          <button class="btn btn-ghost" onclick="go('sc-live')">← Restart from Liveness</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 5 · SUBMISSION SUCCESS                      -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-submit">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID — Identity Validation Portal</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Secure · Fast · Reliable</div></div></div></div>
+  <div class="page-main">
+    <div style="max-width:640px;margin:0 auto">
+      <div class="stepper">
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Verify</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">KYC</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Liveness</div></div>
+        <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">eSign</div></div>
+        <div class="step active"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <div class="success-wrap">
+            <div class="success-icon si-green"><svg><use href="#i-check"/></svg></div>
+            <h2 style="color:var(--green)">Submission Successful!</h2>
+            <p class="sub">Your identity has been verified and your application is now with the Administrator for review.</p>
+            <div class="sum-box">
+              <div class="sum-row"><div class="sk">Claim Number</div><div class="sv" id="sub-claim-num">—</div></div>
+              <div class="sum-row"><div class="sk">Account Number</div><div class="sv mono" id="sub-acc-num">—</div></div>
+              <div class="sum-row"><div class="sk">Institution</div><div class="sv" id="sub-inst">—</div></div>
+              <div class="sum-row"><div class="sk">Claim Amount</div><div class="sv" id="sub-amount">—</div></div>
+              <div class="sum-row"><div class="sk">Status</div><div class="sv" style="color:var(--green)">✓ Submitted</div></div>
+              <div class="sum-row"><div class="sk">Timestamp</div><div class="sv mono" id="sub-ts" style="font-size:12px"></div></div>
+              <div class="sum-row"><div class="sk">Reference ID</div><div class="sv mono" style="font-size:12px" id="sub-ref">—</div></div>
+            </div>
+            <div class="alert alert-info" style="text-align:left">
+              <svg><use href="#i-info"/></svg>
+              <div><strong>What happens next?</strong><br>The Administrator will review your submission within 5–7 working days. Keep your Reference ID for follow-up queries.</div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:center">
+              <button class="btn btn-primary" onclick="window.print()">Download Receipt</button>
+              <button class="btn btn-ghost" onclick="resetAll();go('sc-verify')">← Return to Home</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 6 · ADMIN LOGIN                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-admin-login">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-verify');return false">← Depositor Portal</a></div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Administrator Portal</div></div></div></div>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-head">
+        <div class="login-logo-wrap"><svg><use href="#i-lock"/></svg></div>
+        <h2>Administrator Portal</h2>
+        <p>Secure access for authorised administrators</p>
+      </div>
+      <div class="login-body">
+        <div class="demo-hint">🔑 Demo: <strong>admin</strong> / <strong>verify@2026</strong></div>
+        <div class="form-group">
+          <label for="au">Username <span class="req">*</span></label>
+          <input type="text" class="input" id="au" placeholder="Enter username" value="admin">
+        </div>
+        <div class="form-group">
+          <label for="ap">Password <span class="req">*</span></label>
+          <input type="password" class="input" id="ap" placeholder="Enter password" value="verify@2026">
+        </div>
+        <div class="field-err" id="e-login" style="margin-bottom:10px"><svg><use href="#i-warn"/></svg> Invalid credentials.</div>
+        <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()"><svg><use href="#i-lock"/></svg> Sign In to Dashboard</button>
+        <div class="divider"></div>
+        <p class="text-muted" style="text-align:center;font-size:11.5px">This portal is restricted to authorised personnel. All access is logged and audited.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 7 · ADMIN DASHBOARD                         -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-dashboard">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID Administrator Portal</div><div class="topbar-right"><span id="admin-name-top">Administrator</span><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
+  <div class="header">
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-dash"/></svg></div><div class="logo-info"><div class="brand">Administrator Dashboard</div><div class="tagline">VerifyID — Identity Validation Platform</div></div></div>
+    <div class="header-portal"><div><div class="p-label">Logged In</div><div class="p-name" id="admin-name-header">Administrator</div></div></div>
+  </div>
+  <div class="admin-nav-bar">
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Submissions</a>
+    <a href="#">Reports</a>
+    <a href="#">Settings</a>
+  </div>
+
+  <div class="page-main">
+    <div style="max-width:1060px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:18px;font-weight:700;color:var(--navy)">Submission Queue</h2>
+          <p class="text-muted" id="dash-date">Loading…</p>
+        </div>
+        <button class="btn btn-ghost btn-sm">⬇ Export CSV</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="slabel">Total Received</div><div class="sval">142</div><div class="ssub">Last 30 days</div></div>
+        <div class="stat-card t-amber"><div class="slabel">Pending Review</div><div class="sval">38</div><div class="ssub">Awaiting action</div></div>
+        <div class="stat-card t-green"><div class="slabel">Approved Today</div><div class="sval">12</div><div class="ssub">₹ 44,20,000</div></div>
+        <div class="stat-card t-red"><div class="slabel">Rejected Today</div><div class="sval">3</div><div class="ssub">Notified</div></div>
+        <div class="stat-card accent-top t-red"><div class="slabel">High-Risk Flags</div><div class="sval">7</div><div class="ssub">Priority review</div></div>
+      </div>
+
+      <div class="card">
+        <div class="filter-bar">
+          <label>Filter:</label>
+          <select class="filter-sel"><option>Risk: All</option><option>High Risk</option><option>Medium Risk</option><option>Low Risk</option></select>
+          <select class="filter-sel"><option>Amount: All</option><option>Above ₹3L</option><option>₹1–3L</option><option>Below ₹1L</option></select>
+          <select class="filter-sel"><option>Date: Today</option><option>Last 7 Days</option><option>Last 30 Days</option></select>
+          <button class="btn btn-ghost btn-sm">Apply</button>
+        </div>
+        <div class="tbl-wrap">
+          <table id="dashboard-table">
+            <thead>
+              <tr>
+                <th>Claim No.</th><th>Depositor Name</th><th>Account No.</th><th>Claim Amount</th>
+                <th>Submitted</th><th>Score</th><th>Risk</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:10px 16px;background:var(--surface);font-size:12px;color:var(--text-muted);border-top:1px solid var(--border)">Showing submissions · Sorted by Risk (High first)</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 8 · ADMIN DETAIL / VALIDATION REPORT        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-detail">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
+  <div class="header">
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-doc"/></svg></div><div class="logo-info"><div class="brand">Validation Report</div><div class="tagline" id="detail-title-tag">Loading…</div></div></div>
+  </div>
+  <div class="admin-nav-bar">
+    <a href="#" onclick="go('sc-dashboard');return false">Dashboard</a>
+    <a href="#" class="active" id="detail-nav-label">Review</a>
+  </div>
+
+  <div class="page-main">
+    <div style="max-width:1060px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:700;color:var(--navy)" id="detail-heading">Validation Report</h2>
+          <p class="text-muted" id="detail-subheading">Loading…</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm">🖨️ Print</button>
+          <button class="btn btn-ghost btn-sm" onclick="go('sc-dashboard')">← Back to Queue</button>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="card-section mb-16">
+            <div class="card-section-head"><svg><use href="#i-user"/></svg> Depositor Overview</div>
+            <div id="detail-depositor-rows"><!-- filled by JS --></div>
+          </div>
+
+          <!-- Face photo -->
+          <div class="card-section mb-16" id="detail-photo-section" style="display:none">
+            <div class="card-section-head"><svg><use href="#i-cam"/></svg> Captured Photo</div>
+            <div style="padding:12px 16px">
+              <img id="detail-photo" style="width:100%;max-width:280px;border-radius:var(--r);border:2px solid var(--teal)" alt="Liveness photo">
+            </div>
+          </div>
+
+          <div class="card-section">
+            <div class="card-section-head"><svg><use href="#i-cam"/></svg> Liveness Detection Report</div>
+            <div id="detail-liveness-rows"><!-- filled by JS --></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card-section mb-16">
+            <div class="card-section-head"><svg><use href="#i-doc"/></svg> Document Verification</div>
+            <div id="detail-doc-rows"><!-- filled by JS --></div>
+          </div>
+
+          <div class="card-section">
+            <div class="card-section-head"><svg><use href="#i-star"/></svg> AI Decision Support</div>
+            <div style="padding:16px" id="detail-ai-section">
+              <div style="text-align:center;padding:20px">
+                <div class="spinner" style="width:32px;height:32px;margin:0 auto 10px"></div>
+                <p style="font-size:13px;color:var(--text-muted)">Generating AI validation report…</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DECISION -->
+      <div class="card mt-20">
+        <div class="card-head"><div class="icon-wrap"><svg><use href="#i-check"/></svg></div><h2>Admin Decision</h2></div>
+        <div class="card-body">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-success" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Approve &amp; Forward</button>
+            <button class="btn btn-danger" onclick="showReject()"><svg><use href="#i-x"/></svg> Reject Submission</button>
+            <button class="btn btn-ghost" onclick="alert('Sent back for re-submission')">↩ Send Back</button>
+          </div>
+          <div class="reject-panel" id="rej-panel">
+            <div class="reject-panel-title">Rejection Details (Mandatory)</div>
+            <div class="form-group">
+              <label>Rejection Reason <span class="req">*</span></label>
+              <select class="input" id="rej-reason">
+                <option value="">— Select reason —</option>
+                <option>Document mismatch</option><option>Invalid identity</option>
+                <option>Poor liveness detection</option><option>Duplicate submission</option><option>Others</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Remarks <span class="req">*</span></label>
+              <textarea class="input" id="rej-remarks" placeholder="Enter detailed rejection remarks…"></textarea>
+            </div>
+            <button class="btn btn-danger" onclick="openModal('m-reject')"><svg><use href="#i-x"/></svg> Confirm Rejection</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 VerifyID. All rights reserved.</span></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 9 · APPROVED                                -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-approved">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID Administrator Portal</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Administrator Portal</div></div></div></div>
+  <div class="page-main">
+    <div style="max-width:600px;margin:0 auto">
+      <div class="card"><div class="card-body" style="padding:0">
+        <div class="success-wrap">
+          <div class="success-icon si-green"><svg><use href="#i-check"/></svg></div>
+          <h2 style="color:var(--green)">Submission Approved</h2>
+          <p class="sub">Approved and forwarded for claim settlement. The depositor has been notified.</p>
+          <div class="sum-box">
+            <div class="sum-row"><div class="sk">Claim Number</div><div class="sv mono" id="app-claim">—</div></div>
+            <div class="sum-row"><div class="sk">Depositor</div><div class="sv" id="app-name">—</div></div>
+            <div class="sum-row"><div class="sk">Claim Amount</div><div class="sv" id="app-amount">—</div></div>
+            <div class="sum-row"><div class="sk">Decision</div><div class="sv" style="color:var(--green)">✓ Approved</div></div>
+            <div class="sum-row"><div class="sk">Timestamp</div><div class="sv mono" id="app-ts" style="font-size:12px"></div></div>
+            <div class="sum-row"><div class="sk">Next Step</div><div class="sv">Forwarded to Settlement Queue</div></div>
+          </div>
+          <button class="btn btn-primary" onclick="go('sc-dashboard')">← Back to Dashboard</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 10 · REJECTED                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-rejected">
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>VerifyID Administrator Portal</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">VerifyID</div><div class="tagline">Administrator Portal</div></div></div></div>
+  <div class="page-main">
+    <div style="max-width:600px;margin:0 auto">
+      <div class="card"><div class="card-body" style="padding:0">
+        <div class="success-wrap">
+          <div class="success-icon si-red"><svg><use href="#i-x"/></svg></div>
+          <h2 style="color:var(--red)">Submission Rejected</h2>
+          <p class="sub">The submission has been rejected. The depositor has been notified with the rejection reason.</p>
+          <div class="sum-box">
+            <div class="sum-row"><div class="sk">Claim Number</div><div class="sv mono" id="rej-claim">—</div></div>
+            <div class="sum-row"><div class="sk">Decision</div><div class="sv" style="color:var(--red)">✗ Rejected</div></div>
+            <div class="sum-row"><div class="sk">Reason</div><div class="sv" id="rej-reason-display">—</div></div>
+            <div class="sum-row"><div class="sk">Depositor Notified</div><div class="sv" style="color:var(--green)">✓ SMS Sent</div></div>
+          </div>
+          <button class="btn btn-primary mt-16" onclick="go('sc-dashboard')">← Back to Dashboard</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODALS                                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="overlay" id="m-approve">
+  <div class="modal">
+    <div class="modal-head"><div style="width:32px;height:32px;background:var(--green-bg);border-radius:8px;display:flex;align-items:center;justify-content:center"><svg style="width:16px;height:16px;fill:var(--green)"><use href="#i-check"/></svg></div><h3>Confirm Approval</h3></div>
+    <div class="modal-body">
+      <p>Are you sure you want to <strong>approve</strong> this submission?</p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:12px;font-size:13px" id="modal-approve-details"></div>
+      <p style="margin-top:10px;font-size:12px;color:var(--text-muted)">This will forward the claim to Settlement Queue. This action cannot be undone.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('m-approve')">Cancel</button>
+      <button class="btn btn-success" onclick="doApprove()"><svg style="width:14px;height:14px;fill:#fff"><use href="#i-check"/></svg> Yes, Approve</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-reject">
+  <div class="modal">
+    <div class="modal-head"><div style="width:32px;height:32px;background:var(--red-bg);border-radius:8px;display:flex;align-items:center;justify-content:center"><svg style="width:16px;height:16px;fill:var(--red)"><use href="#i-x"/></svg></div><h3>Confirm Rejection</h3></div>
+    <div class="modal-body"><p>Are you sure you want to <strong>reject</strong> this submission?</p><p style="margin-top:8px;font-size:12px;color:var(--text-muted)">The depositor will be notified via SMS.</p></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('m-reject')">Cancel</button>
+      <button class="btn btn-danger" onclick="doReject()"><svg style="width:14px;height:14px;fill:#fff"><use href="#i-x"/></svg> Yes, Reject</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-tag">PROTOTYPE · DEMO</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                         -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script>
+// ── APP STATE ────────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : '/api';
+
+const state = {
+  depositor: null,
+  panOCR: null,
+  aadhaarOCR: null,
+  faceCheck: null,
+  capturedPhotoDataUrl: null,
+  validationReport: null,
+  currentReviewDepositor: null
+};
+
+// ── DEPOSITOR DATA (loaded from JSON) ────────────────
+let depositors = [];
+
+async function loadDepositors() {
+  try {
+    const res = await fetch('/data/depositors.json');
+    depositors = await res.json();
+  } catch {
+    // fallback inline data for demo
+    depositors = [
+      { accountNumber:'ACC001234', name:'Rahul Kumar Sharma', mobile:'XXXXXX7291', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:485000, ucic:'UCIC-7721-5093-4812', claimNumber:'CLM2026001847', hasMobile:true },
+      { accountNumber:'ACC002345', name:'Priya Suresh Nair', mobile:'XXXXXX2104', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:250000, ucic:'UCIC-8832-6104-3921', claimNumber:'CLM2026001831', hasMobile:true },
+      { accountNumber:'ACC003456', name:'Sunita Ramesh Patil', mobile:'XXXXXX4821', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:495000, ucic:'UCIC-9943-7215-5033', claimNumber:'CLM2026001842', hasMobile:true },
+      { accountNumber:'ACC004567', name:'Mohan Vilas Gaikwad', mobile:'XXXXXX9034', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:480000, ucic:'UCIC-1154-8326-6144', claimNumber:'CLM2026001839', hasMobile:true },
+      { accountNumber:'ACC005678', name:'Arvind Shankar Joshi', mobile:'XXXXXX7823', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:375000, ucic:'UCIC-2265-9437-7255', claimNumber:'CLM2026001825', hasMobile:true }
+    ];
+  }
+}
+loadDepositors();
+
+// ── AI API CALLS ─────────────────────────────────────
+async function callAPI(action, data) {
+  try {
+    const res = await fetch(`${API_BASE}/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, data })
+    });
+    return await res.json();
+  } catch {
+    // If API not available, return demo data
+    return getDemoResponse(action, data);
+  }
+}
+
+function getDemoResponse(action, data) {
+  if (action === 'ocr_pan') return { name:'RAHUL KUMAR SHARMA', pan_number:'ABCRS1234F', dob:'15/08/1985', confidence:91, clarity:89, is_valid_pan:true, demo:true };
+  if (action === 'ocr_aadhaar') return { name:'RAHUL SHARMA', aadhaar_number_masked:'XXXX XXXX 2036', dob:'15/08/1985', gender:'Male', confidence:87, clarity:84, is_valid_aadhaar:true, demo:true };
+  if (action === 'face_check') return { face_detected:true, face_count:1, liveness_confidence:94, lighting_quality:78, image_clarity:85, glasses_detected:false, mask_detected:false, spoof_detected:false, overall_pass:true, notes:'Clear frontal face detected.', demo:true };
+  if (action === 'validate_report') {
+    const amt = data?.claimAmount || 0;
+    const score = amt > 450000 ? 67 : amt > 300000 ? 78 : 88;
+    const risk = score < 70 ? 'High' : score < 80 ? 'Medium' : 'Low';
+    const rec = score < 60 ? 'Reject' : score < 75 ? 'Review' : 'Approve';
+    return { overall_score:score, risk_level:risk, recommendation:rec, recommendation_text: rec==='Approve'?'All checks passed.':rec==='Review'?'Minor issues — review recommended.':'Significant issues found.', score_breakdown:{ document_authenticity:score+8, name_consistency:score-10, liveness_quality:94, data_completeness:100 }, flags:[ { type:score<75?'negative':'positive', message:score<75?'Name mismatch detected between documents':'Names consistent across all documents', impact:score<75?'-22 pts':'+15 pts' }, { type:'positive', message:'Liveness passed with high confidence (94%)', impact:'+20 pts' }, { type:score<80?'warning':'positive', message:score<80?'PAN name partial match — review required':'PAN details fully verified', impact:score<80?'-8 pts':'+12 pts' }, { type:'positive', message:'Both documents uploaded and processed', impact:'+8 pts' }, { type:'positive', message:'eSign completed successfully', impact:'+5 pts' } ], summary:`Identity validation for ${data?.name||'depositor'}. Risk: ${risk}. ${rec==='Approve'?'Recommended for approval.':rec==='Review'?'Manual review required.':'Recommend rejection.'}`, demo:true };
+  }
+  return {};
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(id);
+  if (t) { t.classList.add('active'); window.scrollTo(0, 0); }
+  if (id === 'sc-esign') resetEsign();
+  if (id === 'sc-submit') populateSubmitScreen();
+  if (id === 'sc-live') resetLiveness();
+  if (id === 'sc-dashboard') populateDashboard();
+}
+
+// ── ACCOUNT VALIDATION ────────────────────────────────
+function doValidateAcc() {
+  const inst = document.getElementById('v-inst').value;
+  const acc = document.getElementById('v-acc').value.trim().toUpperCase();
+  let ok = true;
+  document.getElementById('e-inst').classList.remove('show');
+  document.getElementById('e-acc').classList.remove('show');
+  if (!inst) { document.getElementById('e-inst').classList.add('show'); ok = false; }
+  if (!acc) { document.getElementById('e-acc').classList.add('show'); ok = false; }
+  if (!ok) return;
+
+  const found = depositors.find(d => d.accountNumber.toUpperCase() === acc);
+  if (!found) { hide('v-form'); show('v-notfound'); return; }
+
+  state.depositor = found;
+  document.getElementById('otp-mob-display').textContent = found.mobile;
+  hide('v-form'); show('v-otp-known'); startTimer();
+}
+
+// ── OTP ───────────────────────────────────────────────
+let otpAttempts = 0, timerIv = null;
+function omv(el, next) { if (el.value.length === 1 && next) document.getElementById(next).focus(); }
+function getOTP(prefix) {
+  const map = { k:['ok1','ok2','ok3','ok4'], n:['on1','on2','on3','on4'], e:['eo1','eo2','eo3','eo4'] };
+  return map[prefix].map(i => document.getElementById(i)?.value || '').join('');
+}
+function doOTP(type) {
+  const val = getOTP(type === 'k' ? 'k' : 'n');
+  if (val === '1234') { populateKYC(); go('sc-kyc'); return; }
+  otpAttempts++;
+  document.getElementById(type === 'k' ? 'e-otp-k' : 'e-otp-n').classList.add('show');
+  if (otpAttempts >= 3) { hide('v-otp-known'); show('v-locked'); clearInterval(timerIv); }
+}
+function startTimer() {
+  let s = 30; document.getElementById('tc').textContent = s;
+  document.getElementById('rbtn').style.display = 'none';
+  document.getElementById('rtimer').style.display = 'block';
+  clearInterval(timerIv);
+  timerIv = setInterval(() => {
+    s--; const e = document.getElementById('tc'); if (e) e.textContent = s;
+    if (s <= 0) { clearInterval(timerIv); const rb = document.getElementById('rbtn'); const rt = document.getElementById('rtimer'); if (rb) rb.style.display = 'inline-flex'; if (rt) rt.style.display = 'none'; }
+  }, 1000);
+}
+function resetTimer() { document.getElementById('rbtn').style.display = 'none'; document.getElementById('rtimer').style.display = 'block'; startTimer(); }
+
+// ── KYC PRE-FILL ──────────────────────────────────────
+function populateKYC() {
+  if (!state.depositor) return;
+  const d = state.depositor;
+  setText('kyc-claim-num', d.claimNumber);
+  setText('kyc-acc-nature', d.natureOfAccount);
+  setText('kyc-ucic', d.ucic);
+  setText('kyc-acc-num', maskAcc(d.accountNumber));
+  setText('kyc-inst', d.institution);
+  setText('kyc-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
+}
+
+// ── FILE UPLOADS & AI OCR ─────────────────────────────
+async function handlePANUpload(input) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  setText('pan-filename', file.name);
+  show('pan-processing'); hide('pan-done');
+  document.getElementById('pan-ocr-result').classList.remove('show');
+
+  const base64 = await fileToBase64(file);
+  const result = await callAPI('ocr_pan', { image: base64 });
+  state.panOCR = result;
+
+  hide('pan-processing'); show('pan-done');
+  document.getElementById('pan-ocr-result').classList.add('show');
+
+  setText('pan-ocr-name', result.name || '—');
+  setText('pan-ocr-pan', result.pan_number || '—');
+  setText('pan-ocr-dob', result.dob || '—');
+  setText('pan-ocr-conf', (result.confidence || 0) + '%' + (result.demo ? ' (demo)' : ''));
+
+  if (result.pan_number) {
+    document.getElementById('pan').value = result.pan_number;
+    livePAN(document.getElementById('pan'));
+  }
+}
+
+async function handleAadhaarUpload(input, side) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+
+  if (side === 'front') {
+    setText('af-filename', file.name);
+    show('af-processing'); hide('af-done');
+    document.getElementById('aadh-ocr-result').classList.remove('show');
+
+    const base64 = await fileToBase64(file);
+    const result = await callAPI('ocr_aadhaar', { image: base64 });
+    state.aadhaarOCR = result;
+
+    hide('af-processing'); show('af-done');
+    document.getElementById('aadh-ocr-result').classList.add('show');
+    setText('aadh-ocr-name', result.name || '—');
+    setText('aadh-ocr-num', result.aadhaar_number_masked || '—');
+    setText('aadh-ocr-dob', result.dob || '—');
+    setText('aadh-ocr-gender', result.gender || '—');
+    setText('aadh-ocr-conf', (result.confidence || 0) + '%' + (result.demo ? ' (demo)' : ''));
+
+    if (result.aadhaar_number_masked) {
+      const digits = result.aadhaar_number_masked.replace(/\D/g,'');
+      if (digits.length >= 4) document.getElementById('aadh').value = result.aadhaar_number_masked;
+    }
+  } else {
+    setText('ab-filename', file.name);
+    show('ab-done');
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── KYC VALIDATION ───────────────────────────────────
+function doKYC() {
+  let ok = true;
+  const pan = document.getElementById('pan').value;
+  const panOk = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan);
+  document.getElementById('e-pan').classList.toggle('show', !panOk);
+  document.getElementById('pan').classList.toggle('err', !panOk);
+  if (!panOk) ok = false;
+
+  const panUp = document.getElementById('pan-done').style.display !== 'none';
+  document.getElementById('e-pan-up').classList.toggle('show', !panUp);
+  if (!panUp) ok = false;
+
+  const aadh = document.getElementById('aadh').value.replace(/\s/g, '');
+  const aadhOk = aadh.length === 12;
+  document.getElementById('e-aadh').classList.toggle('show', !aadhOk);
+  document.getElementById('aadh').classList.toggle('err', !aadhOk);
+  if (!aadhOk) ok = false;
+
+  const afUp = document.getElementById('af-done').style.display !== 'none';
+  const abUp = document.getElementById('ab-done').style.display !== 'none';
+  document.getElementById('e-af').classList.toggle('show', !afUp);
+  document.getElementById('e-ab').classList.toggle('show', !abUp);
+  if (!afUp || !abUp) ok = false;
+
+  if (!ok) { document.getElementById('e-kyc-global').classList.add('show'); return; }
+  go('sc-live');
+}
+
+// ── LIVE VALIDATION ───────────────────────────────────
+function livePAN(el) {
+  el.value = el.value.toUpperCase();
+  const ok = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(el.value);
+  el.classList.toggle('err', el.value.length === 10 && !ok);
+  el.classList.toggle('ok', ok);
+  document.getElementById('e-pan').classList.toggle('show', el.value.length === 10 && !ok);
+}
+function liveAadhaar(el) {
+  let d = el.value.replace(/\D/g,'').substr(0, 12);
+  el.value = d.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3').replace(/(\d{4})(\d{1,4})$/, '$1 $2').replace(/(\d{1,4})$/, '$1');
+  const ok = d.length === 12;
+  el.classList.toggle('ok', ok);
+}
+
+// ── WEBCAM & LIVENESS ─────────────────────────────────
+let camStream = null, livenessIv = null, liveSecs = 0;
+
+function resetLiveness() {
+  liveSecs = 0; stopStream();
+  setEl('face-oval', 'className', 'face-oval');
+  setText('cam-instr', 'Position your face within the oval');
+  document.getElementById('cam-rec-dot').style.display = 'none';
+  document.getElementById('cam-timer').style.display = 'none';
+  document.getElementById('live-ok').style.display = 'none';
+  document.getElementById('live-warn').style.display = 'none';
+  document.getElementById('cam-no-support').style.display = 'none';
+  document.getElementById('cam-perm-notice').style.display = 'flex';
+  document.getElementById('captured-photo').classList.remove('show');
+  document.getElementById('ai-face-result').classList.remove('show');
+  show('ctrl-idle'); hide('ctrl-rec'); hide('ctrl-done');
+  ['chk1','chk2','chk3','chk4'].forEach(id => { const el = document.getElementById(id); if (el) el.className = 'chk-off'; });
+  clearInterval(livenessIv);
+}
+
+function stopStream() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  const v = document.getElementById('cam-video'); if (v) v.srcObject = null;
+}
+
+function setChk(id, on) { const el = document.getElementById(id); if (el) el.className = on ? 'chk-on' : 'chk-off'; }
+
+async function startCam() {
+  hide('cam-perm-notice');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('cam-no-support').style.display = 'flex'; return;
+  }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ideal:640}, height:{ideal:480} }, audio: false });
+    document.getElementById('cam-video').srcObject = camStream;
+    setChk('chk1', true);
+    hide('ctrl-idle'); show('ctrl-rec');
+    document.getElementById('face-oval').classList.add('recording');
+    document.getElementById('cam-rec-dot').style.display = 'flex';
+
+    const instrs = ['Position face in oval','Face detected — hold still','Look straight at camera','Almost ready…'];
+    liveSecs = 0;
+    livenessIv = setInterval(() => {
+      liveSecs++;
+      const instr = document.getElementById('cam-instr');
+      if (instr) instr.textContent = instrs[Math.min(liveSecs - 1, instrs.length - 1)];
+      if (liveSecs >= 2) setChk('chk2', true);
+    }, 1000);
+  } catch (err) {
+    document.getElementById('cam-no-support').style.display = 'flex';
+    document.getElementById('cam-no-support').querySelector('span').textContent = 'Camera access denied. Please allow camera in browser settings.';
+  }
+}
+
+async function capturePhoto() {
+  if (!camStream) return;
+  clearInterval(livenessIv);
+
+  // Capture frame from video
+  const video = document.getElementById('cam-video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.save(); ctx.scale(-1, 1); ctx.drawImage(video, -canvas.width, 0); ctx.restore();
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  state.capturedPhotoDataUrl = dataUrl;
+
+  // Show captured photo
+  const photoEl = document.getElementById('captured-photo');
+  photoEl.src = dataUrl;
+  photoEl.classList.add('show');
+  setChk('chk3', true);
+
+  // Stop camera
+  stopStream();
+  hide('ctrl-rec');
+
+  // Send to AI for analysis
+  const aiResult = document.getElementById('ai-face-result');
+  aiResult.classList.add('show');
+  document.getElementById('ai-face-content').innerHTML = '<div style="text-align:center;padding:12px"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px"></div><p style="font-size:12px;color:var(--teal)">AI analysing face…</p></div>';
+
+  const base64 = dataUrl.split(',')[1];
+  const result = await callAPI('face_check', { image: base64 });
+  state.faceCheck = result;
+
+  // Show AI result
+  const pass = result.overall_pass !== false;
+  document.getElementById('ai-face-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+      <div class="ocr-row"><div class="ocr-label">Face Detected</div><div class="ocr-value ${result.face_detected?'pass':'fail'}">${result.face_detected?'✓ Yes':'✗ No'}</div></div>
+      <div class="ocr-row"><div class="ocr-label">Liveness Confidence</div><div class="ocr-value">${result.liveness_confidence||0}%</div></div>
+      <div class="ocr-row"><div class="ocr-label">Lighting Quality</div><div class="ocr-value">${result.lighting_quality||0}%</div></div>
+      <div class="ocr-row"><div class="ocr-label">Spoof Detected</div><div class="ocr-value ${!result.spoof_detected?'pass':'fail'}">${result.spoof_detected?'⚠ Yes':'✓ No'}</div></div>
+      <div class="ocr-row" style="grid-column:span 2"><div class="ocr-label">Notes</div><div class="ocr-value">${result.notes||'—'}${result.demo?' (demo)':''}</div></div>
+    </div>`;
+
+  if (pass) {
+    setChk('chk4', true);
+    document.getElementById('face-oval').className = 'face-oval verified';
+    document.getElementById('live-ok').style.display = 'flex';
+    setText('live-ok-text', `Liveness check passed! Confidence: ${result.liveness_confidence||94}%`);
+    show('ctrl-done');
+  } else {
+    document.getElementById('live-warn').style.display = 'flex';
+    setText('live-warn-text', 'Please retake — ensure good lighting and face clearly visible.');
+    show('ctrl-idle');
+  }
+}
+
+function stopCam(auto) { clearInterval(livenessIv); stopStream(); hide('ctrl-rec'); show('ctrl-idle'); }
+function retakeCam() { stopStream(); resetLiveness(); }
+
+// ── eSIGN ─────────────────────────────────────────────
+let esignAttempts = 0;
+function resetEsign() {
+  show('esign-redir'); hide('esign-otp'); hide('esign-fail');
+  esignAttempts = 0;
+  ['eo1','eo2','eo3','eo4'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('e-esign').classList.remove('show');
+}
+function showEsignOTP() { hide('esign-redir'); show('esign-otp'); }
+function doEsignOTP() {
+  const val = getOTP('e');
+  if (val === '1234') { go('sc-submit'); return; }
+  esignAttempts++;
+  document.getElementById('e-esign').classList.add('show');
+  document.getElementById('esign-rem').textContent = 2 - esignAttempts;
+  if (esignAttempts >= 2) show('esign-fail');
+}
+
+// ── SUBMIT SCREEN ─────────────────────────────────────
+function populateSubmitScreen() {
+  const d = state.depositor;
+  if (!d) return;
+  setTS('sub-ts');
+  setText('sub-claim-num', d.claimNumber);
+  setText('sub-acc-num', maskAcc(d.accountNumber));
+  setText('sub-inst', d.institution);
+  setText('sub-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
+  setText('sub-ref', 'REF-VID-' + Date.now().toString().slice(-8) + '-' + d.accountNumber.slice(-4));
+}
+
+// ── ADMIN ─────────────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('au').value;
+  const p = document.getElementById('ap').value;
+  if (u === 'admin' && p === 'verify@2026') {
+    document.getElementById('e-login').classList.remove('show');
+    document.getElementById('admin-name-top').textContent = 'Administrator';
+    document.getElementById('admin-name-header').textContent = 'Administrator';
+    go('sc-dashboard');
+  } else {
+    document.getElementById('e-login').classList.add('show');
+  }
+}
+
+function populateDashboard() {
+  const now = new Date();
+  const el = document.getElementById('dash-date');
+  if (el) el.textContent = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) + ', ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + ' — sorted by Risk (High first)';
+
+  // Build table from depositors
+  const tbody = document.getElementById('dashboard-tbody');
+  if (!tbody) return;
+
+  const rows = depositors.map((d, i) => {
+    const score = d.claimAmount > 450000 ? 41 + i*3 : d.claimAmount > 300000 ? 67 + i*2 : 85 + i;
+    const clampedScore = Math.min(score, 99);
+    const risk = clampedScore < 55 ? 'High' : clampedScore < 75 ? 'Medium' : 'Low';
+    const riskClass = risk === 'High' ? 'badge-high' : risk === 'Medium' ? 'badge-med' : 'badge-low';
+    const scoreColor = risk === 'High' ? 'var(--red)' : risk === 'Medium' ? 'var(--amber)' : 'var(--green)';
+    const barColor = scoreColor;
+    const status = i < 3 ? 'Pending' : i === 3 ? 'Approved' : 'Pending';
+    const statusClass = status === 'Approved' ? 'badge-approved' : 'badge-pending';
+    const btnClass = risk === 'High' ? 'btn-danger' : risk === 'Medium' ? 'btn-teal' : 'btn-primary';
+    const date = new Date(Date.now() - i * 86400000 * 0.5).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+    return `<tr>
+      <td style="font-weight:600;color:var(--navy);font-family:'DM Mono',monospace;font-size:12px">${d.claimNumber}</td>
+      <td>${d.name}</td>
+      <td class="mono" style="font-size:12px">${maskAcc(d.accountNumber)}</td>
+      <td style="font-weight:600">₹ ${d.claimAmount.toLocaleString('en-IN')}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${date}</td>
+      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${clampedScore}</span><div class="pbar mt-8"><div class="pbar-fill" style="width:${clampedScore}%;background:${barColor}"></div></div></td>
+      <td><span class="badge ${riskClass}">${risk}</span></td>
+      <td><span class="badge ${statusClass}">${status}</span></td>
+      <td><button class="btn ${btnClass} btn-sm" onclick="openDetail(${i})">Review →</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+function openDetail(idx) {
+  const d = depositors[idx];
+  state.currentReviewDepositor = d;
+
+  const score = d.claimAmount > 450000 ? 41 + idx*3 : d.claimAmount > 300000 ? 67 + idx*2 : 85 + idx;
+  const clampedScore = Math.min(score, 99);
+  const risk = clampedScore < 55 ? 'High' : clampedScore < 75 ? 'Medium' : 'Low';
+
+  setText('detail-title-tag', `${d.claimNumber} — ${d.name}`);
+  setText('detail-nav-label', `Review: ${d.claimNumber}`);
+  setText('detail-heading', `Validation Report — ${d.claimNumber}`);
+  setText('detail-subheading', `Submitted: ${new Date().toLocaleDateString('en-IN')} · Status: Pending Review`);
+
+  // Depositor rows
+  document.getElementById('detail-depositor-rows').innerHTML = `
+    <div class="detail-row"><div class="dl">Claim Number</div><div class="dv mono" style="color:var(--navy);font-weight:700">${d.claimNumber}</div></div>
+    <div class="detail-row"><div class="dl">Depositor Name</div><div class="dv">${d.name}</div></div>
+    <div class="detail-row"><div class="dl">UCIC Number</div><div class="dv mono">${d.ucic}</div></div>
+    <div class="detail-row"><div class="dl">Nature of Account</div><div class="dv">${d.natureOfAccount}</div></div>
+    <div class="detail-row"><div class="dl">Account Number</div><div class="dv mono">${maskAcc(d.accountNumber)}</div></div>
+    <div class="detail-row"><div class="dl">Institution</div><div class="dv">${d.institution}</div></div>
+    <div class="detail-row"><div class="dl">Claim Amount</div><div class="dv" style="font-weight:700">₹ ${d.claimAmount.toLocaleString('en-IN')}</div></div>
+    <div class="detail-row"><div class="dl">Mobile (Masked)</div><div class="dv mono">${d.mobile}</div></div>`;
+
+  // Show captured photo if available
+  const photoSection = document.getElementById('detail-photo-section');
+  const photoEl = document.getElementById('detail-photo');
+  if (state.capturedPhotoDataUrl && idx === 0) {
+    photoSection.style.display = 'block';
+    photoEl.src = state.capturedPhotoDataUrl;
+  } else {
+    photoSection.style.display = 'none';
+  }
+
+  // Liveness rows
+  const fc = state.faceCheck || getDemoResponse('face_check', {});
+  document.getElementById('detail-liveness-rows').innerHTML = `
+    <div class="detail-row"><div class="dl">Liveness Status</div><div class="dv pass">✓ Pass</div></div>
+    <div class="detail-row"><div class="dl">Confidence Score</div><div class="dv">${fc.liveness_confidence||94}%</div></div>
+    <div class="detail-row"><div class="dl">Lighting Quality</div><div class="dv ${(fc.lighting_quality||78)<70?'warn':'pass'}">${(fc.lighting_quality||78)<70?'⚠':''} ${fc.lighting_quality||78}%</div></div>
+    <div class="detail-row"><div class="dl">Face Count</div><div class="dv pass">${fc.face_count||1} — OK ✓</div></div>
+    <div class="detail-row"><div class="dl">Spoof Detection</div><div class="dv pass">No spoof ✓</div></div>
+    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px">${fc.notes||'Clear frontal face detected.'}${fc.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>`;
+
+  // Doc rows
+  const po = state.panOCR || getDemoResponse('ocr_pan', {});
+  const ao = state.aadhaarOCR || getDemoResponse('ocr_aadhaar', {});
+  document.getElementById('detail-doc-rows').innerHTML = `
+    <div style="padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">PAN Verification</div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'ABCRS1234F'}${po.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Name on PAN</div><div class="dv">${po.name||'RAHUL KUMAR SHARMA'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(po.confidence||91)>=85?'pass':'warn'}">${po.confidence||91}%</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Format Valid</div><div class="dv pass">✓ Valid</div></div>
+    </div>
+    <div style="padding:12px 16px">
+      <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Aadhaar Verification</div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'XXXX XXXX 2036'}${ao.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Name on Aadhaar</div><div class="dv">${ao.name||'RAHUL SHARMA'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(ao.confidence||87)>=85?'pass':'warn'}">${ao.confidence||87}%</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Front/Back Upload</div><div class="dv pass">✓ Both uploaded</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">eSign Status</div><div class="dv pass">✓ Signed</div></div>
+    </div>`;
+
+  // Load AI report
+  const aiSection = document.getElementById('detail-ai-section');
+  aiSection.innerHTML = `<div style="text-align:center;padding:20px"><div class="spinner" style="width:32px;height:32px;margin:0 auto 10px"></div><p style="font-size:13px;color:var(--text-muted)">Generating AI validation report…</p></div>`;
+
+  go('sc-detail');
+
+  // Generate AI report async
+  setTimeout(async () => {
+    const report = await callAPI('validate_report', {
+      name: d.name, accountNumber: d.accountNumber, claimAmount: d.claimAmount,
+      panOCR: state.panOCR, aadhaarOCR: state.aadhaarOCR, faceCheck: state.faceCheck
+    });
+    state.validationReport = report;
+    renderAIReport(report, aiSection);
+  }, 800);
+
+  // Update modal details
+  const modal = document.getElementById('modal-approve-details');
+  if (modal) modal.innerHTML = `<div style="margin-bottom:3px"><strong>Claim:</strong> ${d.claimNumber}</div><div style="margin-bottom:3px"><strong>Depositor:</strong> ${d.name}</div><div><strong>Amount:</strong> ₹ ${d.claimAmount.toLocaleString('en-IN')}</div>`;
+}
+
+function renderAIReport(r, container) {
+  const sc = r.overall_score || 67;
+  const ringClass = sc >= 80 ? 'hi' : sc >= 60 ? 'mid' : 'lo';
+  const recClass = r.recommendation === 'Approve' ? 'rec-approve' : r.recommendation === 'Review' ? 'rec-review' : 'rec-reject';
+  const recIcon = r.recommendation === 'Approve' ? '#i-check' : r.recommendation === 'Review' ? '#i-warn' : '#i-x';
+
+  const flagsHTML = (r.flags || []).map(f => `
+    <div class="explain-item">
+      <div class="explain-dot dot-${f.type==='positive'?'pos':f.type==='warning'?'warn':'neg'}"></div>
+      <div class="explain-text">${f.message}</div>
+      <div class="explain-wt">${f.impact}</div>
+    </div>`).join('');
+
+  const bk = r.score_breakdown || {};
+  container.innerHTML = `
+    <div class="score-row">
+      <div class="score-ring ${ringClass}"><div class="sn">${sc}</div><div class="sd">/100</div></div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Overall Validation Score</div>
+        <div><span class="badge badge-${sc>=80?'low':sc>=60?'med':'high'}">${r.risk_level||'Medium'} Risk</span>${r.demo?'<span style="font-size:10px;color:var(--text-muted);margin-left:6px">(demo mode)</span>':''}</div>
+        <div class="pbar mt-8" style="width:160px;height:7px"><div class="pbar-fill" style="width:${sc}%;background:${sc>=80?'var(--green)':sc>=60?'var(--amber)':'var(--red)'}"></div></div>
+      </div>
+    </div>
+    ${bk.document_authenticity ? `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Doc Authenticity</div>
+        <div style="font-size:18px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace">${bk.document_authenticity}%</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Name Consistency</div>
+        <div style="font-size:18px;font-weight:700;color:${bk.name_consistency>=80?'var(--green)':bk.name_consistency>=60?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace">${bk.name_consistency}%</div>
+      </div>
+    </div>` : ''}
+    <div style="font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Explainability</div>
+    <div class="explain-list">${flagsHTML}</div>
+    <div class="rec-box ${recClass}">
+      <svg><use href="${recIcon}"/></svg>
+      <div><strong>Recommendation:</strong> ${r.recommendation_text || r.recommendation}</div>
+    </div>
+    ${r.summary ? `<div style="margin-top:12px;font-size:12px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px">${r.summary}</div>` : ''}`;
+}
+
+// ── ADMIN DECISIONS ───────────────────────────────────
+function showReject() {
+  const p = document.getElementById('rej-panel');
+  p.classList.add('show');
+  p.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function doApprove() {
+  closeModal('m-approve');
+  const d = state.currentReviewDepositor;
+  setTS('app-ts');
+  if (d) {
+    setText('app-claim', d.claimNumber);
+    setText('app-name', d.name);
+    setText('app-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
+  }
+  go('sc-approved');
+}
+
+function doReject() {
+  closeModal('m-reject');
+  const d = state.currentReviewDepositor;
+  if (d) setText('rej-claim', d.claimNumber);
+  const reason = document.getElementById('rej-reason').value;
+  setText('rej-reason-display', reason || 'Not specified');
+  go('sc-rejected');
+}
+
+// ── MODALS ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); }));
+
+// ── UTILS ─────────────────────────────────────────────
+function show(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setEl(id, prop, val) { const el = document.getElementById(id); if (el) el[prop] = val; }
+function setTS(id) { const el = document.getElementById(id); if (el) el.textContent = new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'medium' }); }
+function maskAcc(acc) { return acc.length > 4 ? 'XXXXX' + acc.slice(-4) : acc; }
+
+function resetAll() {
+  state.depositor = null; state.panOCR = null; state.aadhaarOCR = null;
+  state.faceCheck = null; state.capturedPhotoDataUrl = null; state.validationReport = null;
+  document.getElementById('v-acc').value = '';
+  document.getElementById('v-inst').value = '';
+  hide('v-notfound'); hide('v-otp-known'); hide('v-locked');
+  show('v-form');
+  ['ok1','ok2','ok3','ok4'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  otpAttempts = 0;
+}
+
+// Stop camera when leaving liveness screen
+const liveObs = new MutationObserver(() => {
+  const live = document.getElementById('sc-live');
+  if (live && !live.classList.contains('active')) stopStream();
+});
+const liveEl = document.getElementById('sc-live');
+if (liveEl) liveObs.observe(liveEl, { attributeFilter: ['class'] });
+</script>
+</body>
+</html>
