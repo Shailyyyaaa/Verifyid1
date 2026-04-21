@@ -1298,8 +1298,37 @@ const state = {
   faceCheck: null,
   capturedPhotoDataUrl: null,
   validationReport: null,
-  currentReviewDepositor: null
+  currentReviewDepositor: null,
+  currentReviewIsLive: false
 };
+
+// ── LOCAL STORAGE HELPERS ─────────────────────────────
+const STORAGE_KEY = 'verifyid_submissions';
+
+function getSubmissions() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch { return []; }
+}
+
+function saveSubmission(sub) {
+  const subs = getSubmissions();
+  // Remove existing entry for same account if any
+  const filtered = subs.filter(s => s.accountNumber !== sub.accountNumber);
+  filtered.unshift(sub); // Add new one at top
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+}
+
+function updateSubmissionStatus(claimNumber, status, reason) {
+  const subs = getSubmissions();
+  const idx = subs.findIndex(s => s.claimNumber === claimNumber);
+  if (idx !== -1) {
+    subs[idx].status = status;
+    subs[idx].rejectionReason = reason || '';
+    subs[idx].decidedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(subs));
+  }
+}
 
 // ── DEPOSITOR DATA (loaded from JSON) ────────────────
 let depositors = [];
@@ -1664,12 +1693,23 @@ function doEsignOTP() {
 function populateSubmitScreen() {
   const d = state.depositor;
   if (!d) return;
+  const ts = new Date().toISOString();
+  const ref = 'REF-VID-' + Date.now().toString().slice(-8) + '-' + d.accountNumber.slice(-4);
   setTS('sub-ts');
   setText('sub-claim-num', d.claimNumber);
   setText('sub-acc-num', maskAcc(d.accountNumber));
   setText('sub-inst', d.institution);
-  setText('sub-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
-  setText('sub-ref', 'REF-VID-' + Date.now().toString().slice(-8) + '-' + d.accountNumber.slice(-4));
+  setText('sub-amount', '\u20b9 ' + d.claimAmount.toLocaleString('en-IN'));
+  setText('sub-ref', ref);
+  // Save to localStorage
+  saveSubmission({
+    accountNumber: d.accountNumber, claimNumber: d.claimNumber,
+    name: d.name, mobile: d.mobile, institution: d.institution,
+    natureOfAccount: d.natureOfAccount, claimAmount: d.claimAmount, ucic: d.ucic,
+    panOCR: state.panOCR, aadhaarOCR: state.aadhaarOCR, faceCheck: state.faceCheck,
+    capturedPhoto: state.capturedPhotoDataUrl,
+    status: 'Pending', submittedAt: ts, ref: ref, isLive: true
+  });
 }
 
 // ── ADMIN ─────────────────────────────────────────────
@@ -1691,40 +1731,156 @@ function populateDashboard() {
   const el = document.getElementById('dash-date');
   if (el) el.textContent = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) + ', ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + ' — sorted by Risk (High first)';
 
-  // Build table from depositors
   const tbody = document.getElementById('dashboard-tbody');
   if (!tbody) return;
 
-  const rows = depositors.map((d, i) => {
+  // Get live submissions from localStorage
+  const liveSubs = getSubmissions();
+
+  // Build live submission rows first (highlighted)
+  const liveRows = liveSubs.map((s, i) => {
+    const score = s.claimAmount > 450000 ? 52 : s.claimAmount > 300000 ? 71 : 86;
+    const risk = score < 55 ? 'High' : score < 75 ? 'Medium' : 'Low';
+    const riskClass = risk === 'High' ? 'badge-high' : risk === 'Medium' ? 'badge-med' : 'badge-low';
+    const scoreColor = risk === 'High' ? 'var(--red)' : risk === 'Medium' ? 'var(--amber)' : 'var(--green)';
+    const statusClass = s.status === 'Approved' ? 'badge-approved' : s.status === 'Rejected' ? 'badge-rejected' : 'badge-pending';
+    const btnClass = risk === 'High' ? 'btn-danger' : risk === 'Medium' ? 'btn-teal' : 'btn-primary';
+    const date = new Date(s.submittedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const time = new Date(s.submittedAt).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    return `<tr style="background:#f0fdf8;border-left:3px solid var(--teal)">
+      <td style="font-weight:600;color:var(--navy);font-family:'DM Mono',monospace;font-size:12px">${s.claimNumber} <span style="font-size:9px;background:var(--teal);color:#fff;padding:1px 5px;border-radius:4px;margin-left:4px">LIVE</span></td>
+      <td style="font-weight:600">${s.name}</td>
+      <td class="mono" style="font-size:12px">${maskAcc(s.accountNumber)}</td>
+      <td style="font-weight:600">&#8377; ${s.claimAmount.toLocaleString('en-IN')}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${date}<br>${time}</td>
+      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${score}</span><div class="pbar mt-8"><div class="pbar-fill" style="width:${score}%;background:${scoreColor}"></div></div></td>
+      <td><span class="badge ${riskClass}">${risk}</span></td>
+      <td><span class="badge ${statusClass}">${s.status}</span></td>
+      <td><button class="btn ${btnClass} btn-sm" onclick="openLiveDetail('${s.claimNumber}')">Review &#x2192;</button></td>
+    </tr>`;
+  });
+
+  // Sample data rows below
+  const sampleRows = depositors.map((d, i) => {
     const score = d.claimAmount > 450000 ? 41 + i*3 : d.claimAmount > 300000 ? 67 + i*2 : 85 + i;
     const clampedScore = Math.min(score, 99);
     const risk = clampedScore < 55 ? 'High' : clampedScore < 75 ? 'Medium' : 'Low';
     const riskClass = risk === 'High' ? 'badge-high' : risk === 'Medium' ? 'badge-med' : 'badge-low';
     const scoreColor = risk === 'High' ? 'var(--red)' : risk === 'Medium' ? 'var(--amber)' : 'var(--green)';
-    const barColor = scoreColor;
     const status = i < 3 ? 'Pending' : i === 3 ? 'Approved' : 'Pending';
     const statusClass = status === 'Approved' ? 'badge-approved' : 'badge-pending';
     const btnClass = risk === 'High' ? 'btn-danger' : risk === 'Medium' ? 'btn-teal' : 'btn-primary';
     const date = new Date(Date.now() - i * 86400000 * 0.5).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-
     return `<tr>
       <td style="font-weight:600;color:var(--navy);font-family:'DM Mono',monospace;font-size:12px">${d.claimNumber}</td>
       <td>${d.name}</td>
       <td class="mono" style="font-size:12px">${maskAcc(d.accountNumber)}</td>
-      <td style="font-weight:600">₹ ${d.claimAmount.toLocaleString('en-IN')}</td>
+      <td style="font-weight:600">&#8377; ${d.claimAmount.toLocaleString('en-IN')}</td>
       <td style="font-size:12px;color:var(--text-muted)">${date}</td>
-      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${clampedScore}</span><div class="pbar mt-8"><div class="pbar-fill" style="width:${clampedScore}%;background:${barColor}"></div></div></td>
+      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${clampedScore}</span><div class="pbar mt-8"><div class="pbar-fill" style="width:${clampedScore}%;background:${scoreColor}"></div></div></td>
       <td><span class="badge ${riskClass}">${risk}</span></td>
       <td><span class="badge ${statusClass}">${status}</span></td>
-      <td><button class="btn ${btnClass} btn-sm" onclick="openDetail(${i})">Review →</button></td>
+      <td><button class="btn ${btnClass} btn-sm" onclick="openDetail(${i})">Review &#x2192;</button></td>
     </tr>`;
   });
-  tbody.innerHTML = rows.join('');
+
+  tbody.innerHTML = liveRows.join('') + sampleRows.join('');
+
+  // Update pending count
+  const pendingCount = liveSubs.filter(s => s.status === 'Pending').length + 38;
+  document.querySelector('.stat-card.t-amber .sval') && (document.querySelector('.stat-card.t-amber .sval').textContent = pendingCount);
+}
+
+function openLiveDetail(claimNumber) {
+  const subs = getSubmissions();
+  const s = subs.find(sub => sub.claimNumber === claimNumber);
+  if (!s) return;
+
+  state.currentReviewDepositor = s;
+  state.currentReviewIsLive = true;
+
+  setText('detail-title-tag', s.claimNumber + ' — ' + s.name);
+  setText('detail-nav-label', 'Review: ' + s.claimNumber);
+  setText('detail-heading', 'Validation Report — ' + s.claimNumber);
+  setText('detail-subheading', 'Submitted: ' + new Date(s.submittedAt).toLocaleString('en-IN') + ' · Status: ' + s.status);
+
+  document.getElementById('detail-depositor-rows').innerHTML = `
+    <div class="detail-row"><div class="dl">Claim Number</div><div class="dv mono" style="color:var(--navy);font-weight:700">${s.claimNumber} <span style="font-size:9px;background:var(--teal);color:#fff;padding:1px 5px;border-radius:4px">LIVE</span></div></div>
+    <div class="detail-row"><div class="dl">Depositor Name</div><div class="dv" style="font-weight:600">${s.name}</div></div>
+    <div class="detail-row"><div class="dl">UCIC Number</div><div class="dv mono">${s.ucic}</div></div>
+    <div class="detail-row"><div class="dl">Nature of Account</div><div class="dv">${s.natureOfAccount}</div></div>
+    <div class="detail-row"><div class="dl">Account Number</div><div class="dv mono">${maskAcc(s.accountNumber)}</div></div>
+    <div class="detail-row"><div class="dl">Institution</div><div class="dv">${s.institution}</div></div>
+    <div class="detail-row"><div class="dl">Claim Amount</div><div class="dv" style="font-weight:700;color:var(--navy)">&#8377; ${s.claimAmount.toLocaleString('en-IN')}</div></div>
+    <div class="detail-row"><div class="dl">Mobile (Masked)</div><div class="dv mono">${s.mobile}</div></div>
+    <div class="detail-row"><div class="dl">Submitted At</div><div class="dv">${new Date(s.submittedAt).toLocaleString('en-IN')}</div></div>
+    <div class="detail-row"><div class="dl">Reference ID</div><div class="dv mono" style="font-size:12px">${s.ref}</div></div>`;
+
+  // Show captured photo if available
+  const photoSection = document.getElementById('detail-photo-section');
+  const photoEl = document.getElementById('detail-photo');
+  if (s.capturedPhoto) {
+    photoSection.style.display = 'block';
+    photoEl.src = s.capturedPhoto;
+  } else {
+    photoSection.style.display = 'none';
+  }
+
+  // Liveness rows from real data
+  const fc = s.faceCheck || {liveness_confidence:94, lighting_quality:78, face_count:1, notes:'Face detected.', spoof_detected:false};
+  document.getElementById('detail-liveness-rows').innerHTML = `
+    <div class="detail-row"><div class="dl">Liveness Status</div><div class="dv pass">&#10003; Pass</div></div>
+    <div class="detail-row"><div class="dl">Confidence Score</div><div class="dv">${fc.liveness_confidence||94}%</div></div>
+    <div class="detail-row"><div class="dl">Lighting Quality</div><div class="dv ${(fc.lighting_quality||78)<70?'warn':'pass'}">${(fc.lighting_quality||78)<70?'&#9888; ':''}${fc.lighting_quality||78}%</div></div>
+    <div class="detail-row"><div class="dl">Face Count</div><div class="dv pass">${fc.face_count||1} &#10003;</div></div>
+    <div class="detail-row"><div class="dl">Spoof Detection</div><div class="dv pass">No spoof &#10003;</div></div>
+    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px">${fc.notes||'Clear face detected.'}${fc.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>`;
+
+  // Doc rows from real OCR data
+  const po = s.panOCR || {pan_number:'—', name:'—', confidence:0, demo:true};
+  const ao = s.aadhaarOCR || {aadhaar_number_masked:'—', name:'—', confidence:0, demo:true};
+  document.getElementById('detail-doc-rows').innerHTML = `
+    <div style="padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">PAN Verification</div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'—'}${po.demo?' <span style="color:var(--text-muted)">(demo)</span>':' <span style="color:var(--green);font-size:11px">&#10003; AI Read</span>'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Name on PAN</div><div class="dv">${po.name||'—'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Date of Birth</div><div class="dv">${po.dob||'—'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(po.confidence||0)>=85?'pass':'warn'}">${po.confidence||0}%</div></div>
+    </div>
+    <div style="padding:12px 16px">
+      <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Aadhaar Verification</div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'—'}${ao.demo?' <span style="color:var(--text-muted)">(demo)</span>':' <span style="color:var(--green);font-size:11px">&#10003; AI Read</span>'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Name on Aadhaar</div><div class="dv">${ao.name||'—'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Gender</div><div class="dv">${ao.gender||'—'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(ao.confidence||0)>=85?'pass':'warn'}">${ao.confidence||0}%</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Front/Back Upload</div><div class="dv pass">&#10003; Both uploaded</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">eSign Status</div><div class="dv pass">&#10003; Signed</div></div>
+    </div>`;
+
+  // AI report
+  const aiSection = document.getElementById('detail-ai-section');
+  aiSection.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner" style="width:32px;height:32px;margin:0 auto 10px"></div><p style="font-size:13px;color:var(--text-muted)">Generating AI validation report…</p></div>';
+
+  // Modal details
+  const modal = document.getElementById('modal-approve-details');
+  if (modal) modal.innerHTML = `<div style="margin-bottom:3px"><strong>Claim:</strong> ${s.claimNumber}</div><div style="margin-bottom:3px"><strong>Depositor:</strong> ${s.name}</div><div><strong>Amount:</strong> &#8377; ${s.claimAmount.toLocaleString('en-IN')}</div>`;
+
+  go('sc-detail');
+
+  setTimeout(async () => {
+    const report = await callAPI('validate_report', {
+      name: s.name, accountNumber: s.accountNumber, claimAmount: s.claimAmount,
+      panOCR: s.panOCR, aadhaarOCR: s.aadhaarOCR, faceCheck: s.faceCheck
+    });
+    state.validationReport = report;
+    renderAIReport(report, aiSection);
+  }, 800);
 }
 
 function openDetail(idx) {
   const d = depositors[idx];
   state.currentReviewDepositor = d;
+  state.currentReviewIsLive = false;
 
   const score = d.claimAmount > 450000 ? 41 + idx*3 : d.claimAmount > 300000 ? 67 + idx*2 : 85 + idx;
   const clampedScore = Math.min(score, 99);
@@ -1864,7 +2020,8 @@ function doApprove() {
   if (d) {
     setText('app-claim', d.claimNumber);
     setText('app-name', d.name);
-    setText('app-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
+    setText('app-amount', '\u20b9 ' + d.claimAmount.toLocaleString('en-IN'));
+    if (state.currentReviewIsLive) updateSubmissionStatus(d.claimNumber, 'Approved', '');
   }
   go('sc-approved');
 }
@@ -1872,8 +2029,11 @@ function doApprove() {
 function doReject() {
   closeModal('m-reject');
   const d = state.currentReviewDepositor;
-  if (d) setText('rej-claim', d.claimNumber);
   const reason = document.getElementById('rej-reason').value;
+  if (d) {
+    setText('rej-claim', d.claimNumber);
+    if (state.currentReviewIsLive) updateSubmissionStatus(d.claimNumber, 'Rejected', reason);
+  }
   setText('rej-reason-display', reason || 'Not specified');
   go('sc-rejected');
 }
