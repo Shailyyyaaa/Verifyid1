@@ -1383,12 +1383,117 @@ function getDemoResponse(action, data) {
   if (action === 'ocr_pan') return { name:'RAHUL KUMAR SHARMA', pan_number:'ABCRS1234F', dob:'15/08/1985', confidence:91, clarity:89, is_valid_pan:true, demo:true };
   if (action === 'ocr_aadhaar') return { name:'RAHUL SHARMA', aadhaar_number_masked:'XXXX XXXX 2036', dob:'15/08/1985', gender:'Male', confidence:87, clarity:84, is_valid_aadhaar:true, demo:true };
   if (action === 'face_check') return { face_detected:true, face_count:1, liveness_confidence:94, lighting_quality:78, image_clarity:85, glasses_detected:false, mask_detected:false, spoof_detected:false, overall_pass:true, notes:'Clear frontal face detected.', demo:true };
+
   if (action === 'validate_report') {
-    const amt = data?.claimAmount || 0;
-    const score = amt > 450000 ? 67 : amt > 300000 ? 78 : 88;
-    const risk = score < 70 ? 'High' : score < 80 ? 'Medium' : 'Low';
-    const rec = score < 60 ? 'Reject' : score < 75 ? 'Review' : 'Approve';
-    return { overall_score:score, risk_level:risk, recommendation:rec, recommendation_text: rec==='Approve'?'All checks passed.':rec==='Review'?'Minor issues — review recommended.':'Significant issues found.', score_breakdown:{ document_authenticity:score+8, name_consistency:score-10, liveness_quality:94, data_completeness:100 }, flags:[ { type:score<75?'negative':'positive', message:score<75?'Name mismatch detected between documents':'Names consistent across all documents', impact:score<75?'-22 pts':'+15 pts' }, { type:'positive', message:'Liveness passed with high confidence (94%)', impact:'+20 pts' }, { type:score<80?'warning':'positive', message:score<80?'PAN name partial match — review required':'PAN details fully verified', impact:score<80?'-8 pts':'+12 pts' }, { type:'positive', message:'Both documents uploaded and processed', impact:'+8 pts' }, { type:'positive', message:'eSign completed successfully', impact:'+5 pts' } ], summary:`Identity validation for ${data?.name||'depositor'}. Risk: ${risk}. ${rec==='Approve'?'Recommended for approval.':rec==='Review'?'Manual review required.':'Recommend rejection.'}`, demo:true };
+    // ── Helpers ──────────────────────────────────────────
+    function normalize(s) {
+      return (s || '').toUpperCase().replace(/[^A-Z\s]/g, '').trim();
+    }
+    function nameMatch(a, b) {
+      const na = normalize(a), nb = normalize(b);
+      if (!na || !nb) return false;
+      if (na === nb) return true;
+      // Check if all words of the shorter name appear in the longer (handles initials / middle name omission)
+      const wordsA = na.split(/\s+/), wordsB = nb.split(/\s+/);
+      const [shorter, longer] = wordsA.length <= wordsB.length ? [wordsA, wordsB] : [wordsB, wordsA];
+      return shorter.every(w => longer.includes(w));
+    }
+
+    // ── Pull real OCR data passed in ─────────────────────
+    const pan   = data?.panOCR    || {};
+    const aadh  = data?.aadhaarOCR|| {};
+    const face  = data?.faceCheck || {};
+    const declared = data?.name   || '';
+
+    // ── Name consistency checks ──────────────────────────
+    const panNameOk  = nameMatch(pan.name,  declared);
+    const aadhNameOk = nameMatch(aadh.name, declared);
+    const crossMatch = nameMatch(pan.name,  aadh.name);
+
+    // ── Individual scores ────────────────────────────────
+    const panConf      = pan.confidence  || 85;
+    const aadhConf     = aadh.confidence || 85;
+    const livenessConf = face.liveness_confidence || 92;
+    const lightingOk   = (face.lighting_quality || 75) >= 60;
+    const facePass     = face.overall_pass !== false;
+    const docsDone     = (pan.pan_number || pan.name) && (aadh.aadhaar_number_masked || aadh.name);
+
+    // ── Score calculation (based on actual data) ─────────
+    let score = 50; // base
+    score += panNameOk  ? 15 : -10;
+    score += aadhNameOk ? 15 : -10;
+    score += crossMatch ? 5  : -5;
+    score += facePass   ? 12 : -8;
+    score += lightingOk ? 3  : 0;
+    score += docsDone   ? 8  : -5;
+    score += panConf  >= 85 ? 3 : 0;
+    score += aadhConf >= 85 ? 3 : 0;
+    score = Math.max(20, Math.min(99, Math.round(score)));
+
+    const nameConsistency    = (panNameOk && aadhNameOk && crossMatch) ? 95 : (panNameOk || aadhNameOk) ? 65 : 35;
+    const docAuthenticity    = Math.round((panConf + aadhConf) / 2);
+    const livenessQuality    = livenessConf;
+    const dataCompleteness   = docsDone ? 100 : 60;
+
+    const risk = score >= 80 ? 'Low' : score >= 60 ? 'Medium' : 'High';
+    const rec  = score >= 80 ? 'Approve' : score >= 60 ? 'Review' : 'Reject';
+
+    // ── Build flags from actual results ──────────────────
+    const flags = [];
+
+    // Name: PAN vs declared
+    flags.push(panNameOk
+      ? { type:'positive', message:`PAN name "${pan.name || '—'}" matches declared name — verified`, impact:'+15 pts' }
+      : { type:'negative', message:`PAN name "${pan.name || '—'}" does not match declared name "${declared}"`, impact:'-10 pts' });
+
+    // Name: Aadhaar vs declared
+    flags.push(aadhNameOk
+      ? { type:'positive', message:`Aadhaar name "${aadh.name || '—'}" matches declared name — verified`, impact:'+15 pts' }
+      : { type:'negative', message:`Aadhaar name "${aadh.name || '—'}" does not match declared name "${declared}"`, impact:'-10 pts' });
+
+    // Cross-document match
+    flags.push(crossMatch
+      ? { type:'positive', message:'PAN and Aadhaar names are consistent with each other', impact:'+5 pts' }
+      : { type:'warning',  message:'PAN and Aadhaar names differ — may be abbreviation or middle name', impact:'-5 pts' });
+
+    // Liveness
+    flags.push(facePass
+      ? { type:'positive', message:`Liveness check passed — confidence ${livenessConf}%`, impact:'+12 pts' }
+      : { type:'negative', message:'Liveness check failed or was inconclusive', impact:'-8 pts' });
+
+    // Lighting
+    if (!lightingOk) flags.push({ type:'warning', message:'Low lighting quality during liveness capture', impact:'0 pts' });
+
+    // Documents uploaded
+    flags.push(docsDone
+      ? { type:'positive', message:'Both PAN and Aadhaar documents uploaded and processed', impact:'+8 pts' }
+      : { type:'warning',  message:'One or more identity documents missing', impact:'-5 pts' });
+
+    // eSign
+    flags.push({ type:'positive', message:'eSign completed successfully', impact:'+5 pts' });
+
+    // ── Recommendation text ───────────────────────────────
+    const recText = rec === 'Approve'
+      ? `All identity checks passed. Names are consistent across PAN, Aadhaar, and declared details. Liveness verified. Recommended for approval.`
+      : rec === 'Review'
+      ? `Some checks require manual review. ${!panNameOk ? 'PAN name mismatch detected. ' : ''}${!aadhNameOk ? 'Aadhaar name mismatch detected. ' : ''}${!facePass ? 'Liveness inconclusive. ' : ''}Please verify with depositor before proceeding.`
+      : `Significant issues found. ${!panNameOk ? 'PAN name mismatch. ' : ''}${!aadhNameOk ? 'Aadhaar name mismatch. ' : ''}${!facePass ? 'Liveness failed. ' : ''}Reject and request re-submission.`;
+
+    return {
+      overall_score: score,
+      risk_level: risk,
+      recommendation: rec,
+      recommendation_text: recText,
+      score_breakdown: {
+        document_authenticity: docAuthenticity,
+        name_consistency:      nameConsistency,
+        liveness_quality:      livenessQuality,
+        data_completeness:     dataCompleteness
+      },
+      flags,
+      summary: `Identity validation completed for ${declared || 'depositor'}. Overall risk assessed as ${risk} (score: ${score}/100). ${recText}`,
+      demo: true
+    };
   }
   return {};
 }
