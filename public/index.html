@@ -1334,18 +1334,38 @@ function updateSubmissionStatus(claimNumber, status, reason) {
 let depositors = [];
 
 async function loadDepositors() {
+  // Full depositor list embedded — always available regardless of whether
+  // /data/depositors.json can be fetched (works locally AND on Vercel)
+  const EMBEDDED = [
+    { accountNumber:'ACC001234', name:'Shailraj Sonawane', mobile:'XXXXXX7291', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:485000, ucic:'UCIC-7721-5093-4812', claimNumber:'CLM2026001847', hasMobile:true },
+    { accountNumber:'ACC002345', name:'Siddhant Kadus', mobile:'XXXXXX2104', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:250000, ucic:'UCIC-8832-6104-3921', claimNumber:'CLM2026001831', hasMobile:true },
+    { accountNumber:'ACC003456', name:'Durgesh Ingale', mobile:'XXXXXX4821', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:495000, ucic:'UCIC-9943-7215-5033', claimNumber:'CLM2026001842', hasMobile:true },
+    { accountNumber:'ACC004567', name:'Mohan Vilas Gaikwad', mobile:'XXXXXX9034', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:480000, ucic:'UCIC-1154-8326-6144', claimNumber:'CLM2026001839', hasMobile:true },
+    { accountNumber:'ACC005678', name:'Arvind Shankar Joshi', mobile:'XXXXXX7823', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:375000, ucic:'UCIC-2265-9437-7255', claimNumber:'CLM2026001825', hasMobile:true },
+    { accountNumber:'ACC006789', name:'Kavita Ajay Deshmukh', mobile:'XXXXXX5612', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:320000, ucic:'UCIC-3376-0548-8366', claimNumber:'CLM2026001818', hasMobile:true },
+    { accountNumber:'ACC007890', name:'Vikram Singh Rajput', mobile:'XXXXXX3407', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:500000, ucic:'UCIC-4487-1659-9477', claimNumber:'CLM2026001812', hasMobile:true },
+    { accountNumber:'ACC008901', name:'Anita Prakash Kulkarni', mobile:'XXXXXX8903', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:175000, ucic:'UCIC-5598-2760-0588', claimNumber:'CLM2026001806', hasMobile:true },
+    { accountNumber:'ACC009012', name:'Suresh Baburao Wagh', mobile:'XXXXXX6214', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:425000, ucic:'UCIC-6609-3871-1699', claimNumber:'CLM2026001799', hasMobile:true },
+    { accountNumber:'ACC010123', name:'Meena Dilip Chavan', mobile:'XXXXXX4519', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:290000, ucic:'UCIC-7710-4982-2700', claimNumber:'CLM2026001793', hasMobile:true },
+    { accountNumber:'ACC011234', name:'Rajendra Vishnu Pawar', mobile:'XXXXXX7730', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:460000, ucic:'UCIC-8821-5093-3811', claimNumber:'CLM2026001787', hasMobile:true },
+    { accountNumber:'ACC012345', name:'Lata Sunil Bhosale', mobile:'XXXXXX2841', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:135000, ucic:'UCIC-9932-6104-4922', claimNumber:'CLM2026001781', hasMobile:true },
+    { accountNumber:'ACC013456', name:'Dinesh Ramchandra More', mobile:'XXXXXX9156', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:390000, ucic:'UCIC-0043-7215-5033', claimNumber:'CLM2026001775', hasMobile:true },
+    { accountNumber:'ACC014567', name:'Sushma Narayan Kamble', mobile:'XXXXXX3627', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:220000, ucic:'UCIC-1154-8326-6144', claimNumber:'CLM2026001769', hasMobile:true },
+    { accountNumber:'ACC015678', name:'Ganesh Madhukar Salve', mobile:'XXXXXX5048', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:498000, ucic:'UCIC-2265-9437-7255', claimNumber:'CLM2026001763', hasMobile:true },
+    { accountNumber:'ACC016789', name:'Rekha Anil Jadhav', mobile:'XXXXXX7361', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:155000, ucic:'UCIC-3376-0548-8366', claimNumber:'CLM2026001757', hasMobile:true },
+    { accountNumber:'ACC017890', name:'Santosh Keshav Mane', mobile:'XXXXXX4872', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:340000, ucic:'UCIC-4487-1659-9477', claimNumber:'CLM2026001751', hasMobile:true },
+    { accountNumber:'ACC018901', name:'Vandana Prakash Shinde', mobile:'XXXXXX6193', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:410000, ucic:'UCIC-5598-2760-0588', claimNumber:'CLM2026001745', hasMobile:true },
+    { accountNumber:'ACC019012', name:'Prakash Dattatray Kale', mobile:'XXXXXX8504', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:475000, ucic:'UCIC-6609-3871-1699', claimNumber:'CLM2026001739', hasMobile:true },
+    { accountNumber:'ACC020123', name:'Ujwala Ramesh Deshpande', mobile:'XXXXXX2917', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:265000, ucic:'UCIC-7710-4982-2700', claimNumber:'CLM2026001733', hasMobile:true }
+  ];
+
   try {
     const res = await fetch('/data/depositors.json');
+    if (!res.ok) throw new Error('fetch failed');
     depositors = await res.json();
   } catch {
-    // fallback inline data for demo
-    depositors = [
-      { accountNumber:'ACC001234', name:'Rahul Kumar Sharma', mobile:'XXXXXX7291', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:485000, ucic:'UCIC-7721-5093-4812', claimNumber:'CLM2026001847', hasMobile:true },
-      { accountNumber:'ACC002345', name:'Priya Suresh Nair', mobile:'XXXXXX2104', institution:'Metro Credit Union', natureOfAccount:'Single', claimAmount:250000, ucic:'UCIC-8832-6104-3921', claimNumber:'CLM2026001831', hasMobile:true },
-      { accountNumber:'ACC003456', name:'Sunita Ramesh Patil', mobile:'XXXXXX4821', institution:'Heritage Savings Bank', natureOfAccount:'Joint', claimAmount:495000, ucic:'UCIC-9943-7215-5033', claimNumber:'CLM2026001842', hasMobile:true },
-      { accountNumber:'ACC004567', name:'Mohan Vilas Gaikwad', mobile:'XXXXXX9034', institution:'Citizen Finance Corp', natureOfAccount:'Single', claimAmount:480000, ucic:'UCIC-1154-8326-6144', claimNumber:'CLM2026001839', hasMobile:true },
-      { accountNumber:'ACC005678', name:'Arvind Shankar Joshi', mobile:'XXXXXX7823', institution:'First National Financial Services', natureOfAccount:'Single', claimAmount:375000, ucic:'UCIC-2265-9437-7255', claimNumber:'CLM2026001825', hasMobile:true }
-    ];
+    // Use embedded data — always in sync with depositors.json
+    depositors = EMBEDDED;
   }
 }
 loadDepositors();
