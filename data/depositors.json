@@ -1,7 +1,7 @@
 [
   {
     "accountNumber": "ACC001234",
-    "name": "Rahul Kumar Sharma",
+    "name": "Shailraj Sonawane",
     "mobile": "XXXXXX7291",
     "institution": "First National Financial Services",
     "natureOfAccount": "Single",
@@ -12,7 +12,7 @@
   },
   {
     "accountNumber": "ACC002345",
-    "name": "Priya Suresh Nair",
+    "name": "Siddhant Kadus",
     "mobile": "XXXXXX2104",
     "institution": "Metro Credit Union",
     "natureOfAccount": "Single",
@@ -23,7 +23,7 @@
   },
   {
     "accountNumber": "ACC003456",
-    "name": "Sunita Ramesh Patil",
+    "name": "Durgesh Ingale",
     "mobile": "XXXXXX4821",
     "institution": "Heritage Savings Bank",
     "natureOfAccount": "Joint",
