@@ -24,6 +24,11 @@ export default async function handler(req, res) {
       return res.json(await realOCR(data.image, 'aadhaar'));
     }
 
+    if (action === 'ocr_aadhaar_back') {
+      if (DEMO_MODE) return res.json(demoAadhaarBackResult());
+      return res.json(await realOCRAadhaarBack(data.image));
+    }
+
     if (action === 'face_check') {
       if (DEMO_MODE) return res.json(demoFaceResult());
       return res.json(await realFaceCheck(data.image));
@@ -85,6 +90,33 @@ async function realOCR(base64Image, docType) {
     return JSON.parse(raw.replace(/```json|```/g, '').trim());
   } catch {
     return docType === 'pan' ? demoPANResult() : demoAadhaarResult();
+  }
+}
+
+async function realOCRAadhaarBack(base64Image) {
+  const system = `You are an OCR expert specialising in Indian identity documents. Extract information accurately from the rear side of Aadhaar cards. Always respond with valid JSON only, no markdown.`;
+
+  const prompt = `This is the rear side of an Indian Aadhaar card. Extract the full residential address printed on it and return as JSON:
+  {
+    "address": "<complete address as printed, including house/flat number, street, locality, city, state and PIN code>",
+    "confidence": <0-100 integer reflecting OCR clarity>,
+    "is_valid": true
+  }
+  If the address cannot be read clearly, set is_valid to false and confidence below 50.`;
+
+  const messages = [{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
+      { type: 'text', text: prompt }
+    ]
+  }];
+
+  const raw = await callClaude(messages, system, 400);
+  try {
+    return JSON.parse(raw.replace(/```json|```/g, '').trim());
+  } catch {
+    return demoAadhaarBackResult();
   }
 }
 
@@ -191,6 +223,15 @@ function demoAadhaarResult() {
   };
 }
 
+function demoAadhaarBackResult() {
+  return {
+    address: "Address extracted from document",
+    confidence: 85,
+    is_valid: true,
+    demo: true
+  };
+}
+
 function demoFaceResult() {
   return {
     face_detected: true,
@@ -252,7 +293,10 @@ function demoValidationReport(data) {
   score += aadhConf >= 85 ? 3 : 0;
   score = Math.max(20, Math.min(99, Math.round(score)));
 
-  const nameConsistency  = (panNameOk && aadhNameOk && crossMatch) ? 95 : (panNameOk || aadhNameOk) ? 65 : 35;
+  // Exact match on all three → 100; word-subset match → 95; partial → 65; none → 35
+  function exactMatch(a, b) { return normalize(a) === normalize(b); }
+  const allExact = exactMatch(pan.name, declared) && exactMatch(aadh.name, declared) && exactMatch(pan.name, aadh.name);
+  const nameConsistency = allExact ? 100 : (panNameOk && aadhNameOk && crossMatch) ? 95 : (panNameOk || aadhNameOk) ? 65 : 35;
   const docAuthenticity  = Math.round((panConf + aadhConf) / 2);
   const risk = score >= 80 ? 'Low' : score >= 65 ? 'Medium' : 'High';
   const rec  = score >= 80 ? 'Approve' : score >= 65 ? 'Review' : 'Reject';
@@ -302,7 +346,6 @@ function demoValidationReport(data) {
       data_completeness:     docsDone ? 100 : 60
     },
     flags,
-    summary: `Identity validation completed for ${declared || 'depositor'}. Score: ${score}/100. Risk: ${risk}. ${recText}`,
     demo: true
   };
 }
