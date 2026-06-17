@@ -350,6 +350,7 @@ tr:hover td{background:#fafafa}
 
 /* ─── TWO-COL ────────────────────────────────────────── */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+.two-col>.card+.card{margin-top:0}
 .divider{height:1px;background:var(--border);margin:16px 0}
 
 /* ─── FOOTER ─────────────────────────────────────────── */
@@ -1155,10 +1156,32 @@ tr:hover td{background:#fafafa}
           <h2 style="font-size:18px;font-weight:700;color:var(--navy)" id="detail-heading">Validation Report</h2>
           <p class="text-muted" id="detail-subheading">Loading…</p>
         </div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-ghost btn-sm">🖨️ Print</button>
           <button class="btn btn-ghost btn-sm" onclick="go('sc-dashboard')">← Back to Queue</button>
+          <div style="width:1px;height:28px;background:var(--border);margin:0 2px"></div>
+          <button class="btn btn-success btn-sm" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="showReject()"><svg><use href="#i-x"/></svg> Reject</button>
+          <button class="btn btn-ghost btn-sm" onclick="alert('Sent back for re-submission')">↩ Send Back</button>
         </div>
+      </div>
+
+      <!-- Reject panel — shown inline below action bar when Reject is clicked -->
+      <div class="reject-panel" id="rej-panel" style="margin-bottom:16px">
+        <div class="reject-panel-title">Rejection Details (Mandatory)</div>
+        <div class="form-group">
+          <label>Rejection Reason <span class="req">*</span></label>
+          <select class="input" id="rej-reason">
+            <option value="">— Select reason —</option>
+            <option>Document mismatch</option><option>Invalid identity</option>
+            <option>Poor liveness detection</option><option>Duplicate submission</option><option>Others</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Remarks <span class="req">*</span></label>
+          <textarea class="input" id="rej-remarks" placeholder="Enter detailed rejection remarks…"></textarea>
+        </div>
+        <button class="btn btn-danger" onclick="openModal('m-reject')"><svg><use href="#i-x"/></svg> Confirm Rejection</button>
       </div>
 
       <div class="two-col">
@@ -1200,33 +1223,7 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
 
-      <!-- DECISION -->
-      <div class="card mt-20">
-        <div class="card-head"><div class="icon-wrap"><svg><use href="#i-check"/></svg></div><h2>Admin Decision</h2></div>
-        <div class="card-body">
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-success" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Approve &amp; Forward</button>
-            <button class="btn btn-danger" onclick="showReject()"><svg><use href="#i-x"/></svg> Reject Submission</button>
-            <button class="btn btn-ghost" onclick="alert('Sent back for re-submission')">↩ Send Back</button>
-          </div>
-          <div class="reject-panel" id="rej-panel">
-            <div class="reject-panel-title">Rejection Details (Mandatory)</div>
-            <div class="form-group">
-              <label>Rejection Reason <span class="req">*</span></label>
-              <select class="input" id="rej-reason">
-                <option value="">— Select reason —</option>
-                <option>Document mismatch</option><option>Invalid identity</option>
-                <option>Poor liveness detection</option><option>Duplicate submission</option><option>Others</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Remarks <span class="req">*</span></label>
-              <textarea class="input" id="rej-remarks" placeholder="Enter detailed rejection remarks…"></textarea>
-            </div>
-            <button class="btn btn-danger" onclick="openModal('m-reject')"><svg><use href="#i-x"/></svg> Confirm Rejection</button>
-          </div>
-        </div>
-      </div>
+
     </div>
   </div>
   <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
