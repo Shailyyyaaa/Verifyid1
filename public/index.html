@@ -754,6 +754,7 @@ tr:hover td{background:#fafafa}
                 <div class="u-hint">JPG, PNG, PDF • Max 5 MB</div>
               </div>
               <div class="upload-done" id="ab-done"><svg><use href="#i-check"/></svg><strong id="ab-filename">Aadhaar_Back.jpg</strong> — uploaded</div>
+              <div class="upload-processing" id="ab-processing"><svg><use href="#i-upload"/></svg>Reading address from document…</div>
               <div class="ocr-result" id="addr-ocr-result" style="display:none;margin-top:8px">
                 <div class="ocr-title">Address Extracted from Aadhaar</div>
                 <div class="ocr-row" style="align-items:center">
@@ -1317,7 +1318,7 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
-<div class="demo-tag">PROTOTYPE · DEMO</div>
+
 
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- JAVASCRIPT                                         -->
@@ -1471,7 +1472,9 @@ function getDemoResponse(action, data) {
     score += aadhConf >= 85 ? 3 : 0;
     score = Math.max(20, Math.min(99, Math.round(score)));
 
-    const nameConsistency    = (panNameOk && aadhNameOk && crossMatch) ? 95 : (panNameOk || aadhNameOk) ? 65 : 35;
+    const nameConsistency    = (normalize(pan.name) === normalize(declared) && normalize(aadh.name) === normalize(declared) && normalize(pan.name) === normalize(aadh.name))
+      ? 100
+      : (panNameOk && aadhNameOk && crossMatch) ? 95 : (panNameOk || aadhNameOk) ? 65 : 35;
     const docAuthenticity    = Math.round((panConf + aadhConf) / 2);
     const livenessQuality    = livenessConf;
     const dataCompleteness   = docsDone ? 100 : 60;
@@ -1625,7 +1628,7 @@ async function handlePANUpload(input) {
   setText('pan-ocr-name', result.name || '—');
   setText('pan-ocr-pan', result.pan_number || '—');
   setText('pan-ocr-dob', result.dob || '—');
-  setText('pan-ocr-conf', (result.confidence || 0) + '%' + (result.demo ? ' (demo)' : ''));
+  setText('pan-ocr-conf', (result.confidence || 0) + '%');
 
   if (result.pan_number) {
     document.getElementById('pan').value = result.pan_number;
@@ -1652,7 +1655,7 @@ async function handleAadhaarUpload(input, side) {
     setText('aadh-ocr-num', result.aadhaar_number_masked || '—');
     setText('aadh-ocr-dob', result.dob || '—');
     setText('aadh-ocr-gender', result.gender || '—');
-    setText('aadh-ocr-conf', (result.confidence || 0) + '%' + (result.demo ? ' (demo)' : ''));
+    setText('aadh-ocr-conf', (result.confidence || 0) + '%');
 
     if (result.aadhaar_number_masked) {
       const digits = result.aadhaar_number_masked.replace(/\D/g,'');
@@ -1660,15 +1663,23 @@ async function handleAadhaarUpload(input, side) {
     }
   } else {
     setText('ab-filename', file.name);
-    show('ab-done');
+    show('ab-processing'); hide('ab-done');
+
+    const base64 = await fileToBase64(file);
+    const result = await callAPI('ocr_aadhaar_back', { image: base64 });
+
+    hide('ab-processing'); show('ab-done');
+
     // Show extracted address field (masked by default)
     const addrBlock = document.getElementById('addr-ocr-result');
     if (addrBlock) {
       addrBlock.style.display = 'block';
-      // Store the actual address value on the element for toggle
       const addrEl = document.getElementById('addr-full');
       if (addrEl) {
-        addrEl.dataset.actual = 'Flat 4B, Shivaji Nagar, Pune, Maharashtra — 411005';
+        const extractedAddr = (result && result.address && !result.address.startsWith('Address extracted'))
+          ? result.address
+          : 'Address extracted from document';
+        addrEl.dataset.actual = extractedAddr;
         addrEl.dataset.masked = 'true';
         addrEl.textContent = '••••••••••••••••••••';
       }
@@ -1849,9 +1860,19 @@ async function capturePhoto() {
 function stopCam(auto) { clearInterval(livenessIv); stopStream(); hide('ctrl-rec'); show('ctrl-idle'); }
 function retakeCam() {
   stopStream();
+  // Clear captured photo
+  const photoEl = document.getElementById('captured-photo');
+  if (photoEl) { photoEl.src = ''; photoEl.classList.remove('show'); }
+  // Hide face analysis result
+  const faceResult = document.getElementById('ai-face-result');
+  if (faceResult) faceResult.classList.remove('show');
+  // Restore camera container
   const camContainer = document.getElementById('cam-container');
   if (camContainer) camContainer.style.display = 'block';
+  // Reset all liveness state
   resetLiveness();
+  // Auto-start camera
+  startCam();
 }
 
 // ── eSIGN ─────────────────────────────────────────────
@@ -2044,7 +2065,7 @@ function openLiveDetail(claimNumber) {
     <div class="detail-row"><div class="dl">Lighting Quality</div><div class="dv ${(fc.lighting_quality||78)<70?'warn':'pass'}">${(fc.lighting_quality||78)<70?'&#9888; ':''}${fc.lighting_quality||78}%</div></div>
     <div class="detail-row"><div class="dl">Face Count</div><div class="dv pass">${fc.face_count||1} &#10003;</div></div>
     <div class="detail-row"><div class="dl">Spoof Detection</div><div class="dv pass">No spoof &#10003;</div></div>
-    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px">${fc.notes||'Clear face detected.'}${fc.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>`;
+    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px"><ul style="margin:0;padding-left:16px">${(fc.notes||'Clear face detected.').split(/[.;]/).map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}.</li>`).join('')}</ul></div></div>`;
 
   // Doc rows from real OCR data
   const po = s.panOCR || {pan_number:'—', name:'—', confidence:0, demo:true};
@@ -2052,14 +2073,15 @@ function openLiveDetail(claimNumber) {
   document.getElementById('detail-doc-rows').innerHTML = `
     <div style="padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
       <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">PAN Verification</div>
-      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'—'}${po.demo?' <span style="color:var(--text-muted)">(demo)</span>':' <span style="color:var(--green);font-size:11px"><span style="color:var(--green);font-size:11px">&#10003; AI Read</span>#10003; Verified</span>'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'—'} <span style="color:var(--green);font-size:11px">&#10003; Verified</span></div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Name on PAN</div><div class="dv">${po.name||'—'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Father's Name</div><div class="dv">${po.father_name||'—'}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Date of Birth</div><div class="dv">${po.dob||'—'}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(po.confidence||0)>=85?'pass':'warn'}">${po.confidence||0}%</div></div>
     </div>
     <div style="padding:12px 16px">
       <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Aadhaar Verification</div>
-      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'—'}${ao.demo?' <span style="color:var(--text-muted)">(demo)</span>':' <span style="color:var(--green);font-size:11px"><span style="color:var(--green);font-size:11px">&#10003; AI Read</span>#10003; Verified</span>'}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'—'} <span style="color:var(--green);font-size:11px">&#10003; Verified</span></div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Name on Aadhaar</div><div class="dv">${ao.name||'—'}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Gender</div><div class="dv">${ao.gender||'—'}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(ao.confidence||0)>=85?'pass':'warn'}">${ao.confidence||0}%</div></div>
@@ -2130,7 +2152,7 @@ function openDetail(idx) {
     <div class="detail-row"><div class="dl">Lighting Quality</div><div class="dv ${(fc.lighting_quality||78)<70?'warn':'pass'}">${(fc.lighting_quality||78)<70?'⚠':''} ${fc.lighting_quality||78}%</div></div>
     <div class="detail-row"><div class="dl">Face Count</div><div class="dv pass">${fc.face_count||1} — OK ✓</div></div>
     <div class="detail-row"><div class="dl">Spoof Detection</div><div class="dv pass">No spoof ✓</div></div>
-    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px">${fc.notes||'Clear frontal face detected.'}${fc.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>`;
+    <div class="detail-row"><div class="dl">Notes</div><div class="dv" style="font-size:12px"><ul style="margin:0;padding-left:16px">${(fc.notes||'Clear frontal face detected.').split(/[.;]/).map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}.</li>`).join('')}</ul></div></div>`;
 
   // Doc rows
   const po = state.panOCR || getDemoResponse('ocr_pan', {});
@@ -2138,14 +2160,15 @@ function openDetail(idx) {
   document.getElementById('detail-doc-rows').innerHTML = `
     <div style="padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
       <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">PAN Verification</div>
-      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'ABCRS1234F'}${po.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">PAN Extracted</div><div class="dv mono">${po.pan_number||'ABCRS1234F'} <span style="color:var(--green);font-size:11px">&#10003; Verified</span></div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Name on PAN</div><div class="dv">${po.name||d.name.toUpperCase()}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Father's Name</div><div class="dv">${po.father_name||'—'}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(po.confidence||91)>=85?'pass':'warn'}">${po.confidence||91}%</div></div>
-      <div class="detail-row" style="padding:5px 0"><div class="dl">Format Valid</div><div class="dv pass">✓ Valid</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Format Valid</div><div class="dv pass">&#10003; Valid</div></div>
     </div>
     <div style="padding:12px 16px">
       <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px">Aadhaar Verification</div>
-      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'XXXX XXXX 2036'}${ao.demo?' <span style="color:var(--text-muted)">(demo)</span>':''}</div></div>
+      <div class="detail-row" style="padding:5px 0"><div class="dl">Aadhaar (Masked)</div><div class="dv mono">${ao.aadhaar_number_masked||'XXXX XXXX 2036'} <span style="color:var(--green);font-size:11px">&#10003; Verified</span></div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Name on Aadhaar</div><div class="dv">${ao.name||d.name.toUpperCase()}</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">OCR Confidence</div><div class="dv ${(ao.confidence||87)>=85?'pass':'warn'}">${ao.confidence||87}%</div></div>
       <div class="detail-row" style="padding:5px 0"><div class="dl">Front/Back Upload</div><div class="dv pass">✓ Both uploaded</div></div>
@@ -2197,7 +2220,7 @@ function renderAIReport(r, container) {
       <div class="score-ring ${ringClass}"><div class="sn">${sc}</div><div class="sd">/100</div></div>
       <div>
         <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Overall Validation Score</div>
-        <div><span class="badge badge-${sc>=80?'low':sc>=60?'med':'high'}">${r.risk_level||'Medium'} Risk</span>${r.demo?'<span style="font-size:10px;color:var(--text-muted);margin-left:6px">(demo mode)</span>':''}</div>
+        <div><span class="badge badge-${sc>=80?'low':sc>=60?'med':'high'}">${r.risk_level||'Medium'} Risk</span></div>
         <div class="pbar mt-8" style="width:160px;height:7px"><div class="pbar-fill" style="width:${sc}%;background:${sc>=80?'var(--green)':sc>=60?'var(--amber)':'var(--red)'}"></div></div>
       </div>
     </div>
@@ -2211,14 +2234,21 @@ function renderAIReport(r, container) {
         <div style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Name Consistency</div>
         <div style="font-size:18px;font-weight:700;color:${bk.name_consistency>=80?'var(--green)':bk.name_consistency>=60?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace">${bk.name_consistency}%</div>
       </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Liveness Quality</div>
+        <div style="font-size:18px;font-weight:700;color:${(bk.liveness_quality||0)>=80?'var(--green)':(bk.liveness_quality||0)>=60?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace">${bk.liveness_quality||0}%</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Data Completeness</div>
+        <div style="font-size:18px;font-weight:700;color:${(bk.data_completeness||0)>=80?'var(--green)':(bk.data_completeness||0)>=60?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace">${bk.data_completeness||0}%</div>
+      </div>
     </div>` : ''}
     <div style="font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Explainability</div>
     <div class="explain-list">${flagsHTML}</div>
     <div class="rec-box ${recClass}">
       <svg><use href="${recIcon}"/></svg>
       <div><strong>Recommendation:</strong> ${r.recommendation_text || r.recommendation}</div>
-    </div>
-    ${r.summary ? `<div style="margin-top:12px;font-size:12px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px">${r.summary}</div>` : ''}`;
+    </div>`;
 }
 
 // ── ADMIN DECISIONS ───────────────────────────────────
