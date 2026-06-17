@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pehchan — Aapki Pehchan, Aapka Dava</title>
+<title>पहचान — आपकी पहचान, आपका दावा</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* ─── TOKENS ─────────────────────────────────────────── */
 :root{
@@ -55,7 +55,7 @@ input,select,textarea{font-family:inherit}
 .topbar{background:var(--navy);padding:0 24px;height:44px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.5);letter-spacing:.2px;}
 .topbar a{color:rgba(255,255,255,.5);transition:var(--t)}
 .topbar a:hover{color:rgba(255,255,255,.85);text-decoration:none}
-.topbar-left{display:flex;align-items:center;gap:6px}
+.topbar-left{display:flex;align-items:center;gap:6px;font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
 .topbar-left svg{width:14px;height:14px;fill:var(--teal-light)}
 .topbar-right{display:flex;gap:20px;align-items:center}
 
@@ -64,8 +64,8 @@ input,select,textarea{font-family:inherit}
 .header-logo{display:flex;align-items:center;gap:14px}
 .logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--navy-60));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .logo-mark svg{width:24px;height:24px;fill:var(--teal-light)}
-.logo-info .brand{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.3px;line-height:1.1}
-.logo-info .tagline{font-size:10.5px;color:var(--text-muted);letter-spacing:.1px}
+.logo-info .brand{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.3px;line-height:1.1;font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
+.logo-info .tagline{font-size:10.5px;color:var(--text-muted);letter-spacing:.1px;font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
 .header-portal{display:flex;align-items:center;gap:10px;background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:6px 14px;}
 .header-portal .p-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600}
 .header-portal .p-name{font-size:12.5px;font-weight:600;color:var(--navy)}
@@ -355,7 +355,7 @@ tr:hover td{background:#fafafa}
 /* ─── FOOTER ─────────────────────────────────────────── */
 .footer{background:var(--navy);color:rgba(255,255,255,.5);padding:28px 24px 16px;margin-top:auto}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:24px}
-.footer-brand .fn{font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px}
+.footer-brand .fn{font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px;font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
 .footer-brand p{font-size:12px;line-height:1.7;color:rgba(255,255,255,.45)}
 .footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.35);margin-bottom:10px;font-weight:600}
 .footer-col ul{list-style:none}
@@ -413,7 +413,7 @@ tr:hover td{background:#fafafa}
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen active" id="sc-verify">
   <div class="topbar">
-    <div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Aapki Pehchan, Aapka Dava</div>
+    <div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div>
     <div class="topbar-right">
       <a href="#">Accessibility</a>
       <a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a>
@@ -423,8 +423,8 @@ tr:hover td{background:#fafafa}
     <div class="header-logo">
       <div class="logo-mark"><svg><use href="#i-shield"/></svg></div>
       <div class="logo-info">
-        <div class="brand">Pehchan</div>
-        <div class="tagline">Aapki Pehchan, Aapka Dava</div>
+        <div class="brand">पहचान</div>
+        <div class="tagline">आपकी पहचान, आपका दावा</div>
       </div>
     </div>
     <div class="header-portal"><div><div class="p-label">Identity Validation</div><div class="p-name">Depositor Portal</div></div></div>
@@ -489,12 +489,12 @@ tr:hover td{background:#fafafa}
               <div class="form-group" id="login-mode-tabs" style="display:none">
                 <label>Login By <span class="req">*</span></label>
                 <div style="display:flex;gap:0;border:1.5px solid var(--border-mid);border-radius:var(--r);overflow:hidden;margin-bottom:0">
-                  <button id="tab-acc" onclick="selectLoginTab('acc')" style="flex:1;padding:9px 0;font-size:13px;font-weight:600;border:none;background:var(--navy);color:#fff;cursor:pointer;transition:all .15s">By Account Number</button>
-                  <button id="tab-mob" onclick="selectLoginTab('mob')" style="flex:1;padding:9px 0;font-size:13px;font-weight:500;border:none;border-left:1px solid var(--border-mid);background:var(--white);color:var(--text-sec);cursor:pointer;transition:all .15s">By Mobile Number</button>
-                  <button id="tab-cid" onclick="selectLoginTab('cid')" style="flex:1;padding:9px 0;font-size:13px;font-weight:500;border:none;border-left:1px solid var(--border-mid);background:var(--white);color:var(--text-sec);cursor:pointer;transition:all .15s">By Customer ID</button>
+                  <button id="tab-acc" onclick="selectLoginTab('acc')" style="flex:1;padding:9px 0;font-size:13px;font-weight:600;border:none;background:var(--navy);color:#fff;cursor:pointer;transition:all .15s">Account Number</button>
+                  <button id="tab-mob" onclick="selectLoginTab('mob')" style="flex:1;padding:9px 0;font-size:13px;font-weight:500;border:none;border-left:1px solid var(--border-mid);background:var(--white);color:var(--text-sec);cursor:pointer;transition:all .15s">Mobile Number</button>
+                  <button id="tab-cid" onclick="selectLoginTab('cid')" style="flex:1;padding:9px 0;font-size:13px;font-weight:500;border:none;border-left:1px solid var(--border-mid);background:var(--white);color:var(--text-sec);cursor:pointer;transition:all .15s">Customer ID</button>
                 </div>
               </div>
-              <div class="form-group">
+              <div class="form-group" id="acc-number-group" style="display:none">
                 <label for="v-acc">Account Number <span class="req">*</span></label>
                 <div style="position:relative">
                   <input type="password" class="input" id="v-acc" placeholder="e.g. ACC001234" maxlength="18" style="padding-right:38px">
@@ -613,13 +613,13 @@ tr:hover td{background:#fafafa}
 
   <div class="footer">
     <div class="footer-grid" style="max-width:960px;margin:0 auto">
-      <div class="footer-brand"><div class="fn">Pehchan</div><p>A secure identity validation platform for deposit insurance claim settlement. Built for accuracy, speed and compliance.</p></div>
+      <div class="footer-brand"><div class="fn">पहचान</div><p>A secure identity validation platform for deposit insurance claim settlement. Built for accuracy, speed and compliance.</p></div>
       <div class="footer-col"><h4>Depositors</h4><ul><li><a href="#">Identity Verification</a></li><li><a href="#">Claim Status</a></li><li><a href="#">FAQs</a></li></ul></div>
       <div class="footer-col"><h4>Institutions</h4><ul><li><a href="#">Admin Portal</a></li><li><a href="#">API Docs</a></li><li><a href="#">Compliance</a></li></ul></div>
       <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Help Centre</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
     </div>
     <div class="footer-bottom" style="max-width:960px;margin:0 auto">
-      <span>© 2026 Pehchan. All rights reserved.</span>
+      <span>© 2026 पहचान. All rights reserved.</span>
       <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Accessibility</a></div>
     </div>
   </div>
@@ -630,10 +630,10 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 2 · KYC DETAILS                             -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-kyc">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Aapki Pehchan, Aapka Dava</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a></div></div>
   <div class="header">
-    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div>
-    <div class="header-portal"><div><div class="p-label">Step 2 of 5</div><div class="p-name">Claim KYC &amp; Identity Detailsamp; Identity Details</div></div></div>
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div>
+    <div class="header-portal"><div><div class="p-label">Step 2 of 5</div><div class="p-name">Claim &amp; Identity Details</div></div></div>
   </div>
   <div class="breadcrumb"><a href="#">Home</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg><a href="#">Depositors</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg><span>Claim Details</span></div>
   <div class="hero"><div class="hero-inner"><h1>Identity &amp; Claim Details</h1><p>Upload your PAN and Aadhaar — the system will extract and verify your information securely</p></div></div>
@@ -668,11 +668,11 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
 
-      <div class="two-col">
+      <div class="two-col" style="align-items:stretch">
         <!-- PAN SECTION -->
-        <div class="card">
+        <div class="card" style="height:100%;display:flex;flex-direction:column">
           <div class="card-head"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><h2>Section 1: PAN Details</h2></div>
-          <div class="card-body">
+          <div class="card-body" style="flex:1">
             <div class="alert alert-info" style="font-size:12px;padding:9px 12px">
               <svg><use href="#i-ai"/></svg>
               <div><strong>Document Processing:</strong> Upload your PAN card — the system will extract and verify your details automatically.</div>
@@ -712,9 +712,9 @@ tr:hover td{background:#fafafa}
         </div>
 
         <!-- AADHAAR SECTION -->
-        <div class="card">
+        <div class="card" style="height:100%;display:flex;flex-direction:column">
           <div class="card-head"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><h2>Section 2: Aadhaar Details</h2></div>
-          <div class="card-body">
+          <div class="card-body" style="flex:1">
             <div class="alert alert-info" style="font-size:12px;padding:9px 12px">
               <svg><use href="#i-ai"/></svg>
               <div><strong>Document Processing:</strong> Upload both sides of your Aadhaar card for complete verification.</div>
@@ -756,11 +756,15 @@ tr:hover td{background:#fafafa}
               <div class="upload-done" id="ab-done"><svg><use href="#i-check"/></svg><strong id="ab-filename">Aadhaar_Back.jpg</strong> — uploaded</div>
               <div class="ocr-result" id="addr-ocr-result" style="display:none;margin-top:8px">
                 <div class="ocr-title">Address Extracted from Aadhaar</div>
-                <div class="ocr-row"><div class="ocr-label">House / Flat No.</div><div class="ocr-value" id="addr-house">—</div></div>
-                <div class="ocr-row"><div class="ocr-label">Street / Locality</div><div class="ocr-value" id="addr-street">—</div></div>
-                <div class="ocr-row"><div class="ocr-label">City</div><div class="ocr-value" id="addr-city">—</div></div>
-                <div class="ocr-row"><div class="ocr-label">State</div><div class="ocr-value" id="addr-state">—</div></div>
-                <div class="ocr-row"><div class="ocr-label">PIN Code</div><div class="ocr-value" id="addr-pin">—</div></div>
+                <div class="ocr-row" style="align-items:center">
+                  <div class="ocr-label">Address</div>
+                  <div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">
+                    <div class="ocr-value" id="addr-full" style="font-family:'DM Mono',monospace;letter-spacing:1px">••••••••••••••••••••</div>
+                    <button type="button" onclick="toggleAddrVisible()" id="addr-eye" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--teal)">
+                      <svg style="width:15px;height:15px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="field-err" id="e-ab"><svg><use href="#i-warn"/></svg> Please upload Aadhaar back.</div>
             </div>
@@ -789,7 +793,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -797,9 +801,9 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 3 · LIVENESS DETECTION                      -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-live">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Aapki Pehchan, Aapka Dava</div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div></div>
   <div class="header">
-    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div>
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div>
     <div class="header-portal"><div><div class="p-label">Step 3 of 5</div><div class="p-name">Liveness Detection</div></div></div>
   </div>
   <div class="hero"><div class="hero-inner"><h1>Liveness Detection</h1><p>Verify your physical presence — the system will analyse your photo in real-time</p></div></div>
@@ -899,7 +903,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -907,9 +911,9 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 4 · eSIGN                                   -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-esign">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Aapki Pehchan, Aapka Dava</div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div></div>
   <div class="header">
-    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div>
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div>
     <div class="header-portal"><div><div class="p-label">Step 4 of 5</div><div class="p-name">eSign</div></div></div>
   </div>
   <div class="hero"><div class="hero-inner"><h1>eSign via OTP</h1><p>Digitally sign your claim form using Aadhaar OTP</p></div></div>
@@ -982,7 +986,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -990,8 +994,8 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 5 · SUBMISSION SUCCESS                      -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-submit">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Aapki Pehchan, Aapka Dava</div></div>
-  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="page-main">
     <div style="max-width:640px;margin:0 auto">
       <div class="stepper">
@@ -1029,7 +1033,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1037,8 +1041,8 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 6 · ADMIN LOGIN                             -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-admin-login">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-verify');return false">← Depositor Portal</a></div></div>
-  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-verify');return false">← Depositor Portal</a></div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="login-wrap">
     <div class="login-card">
       <div class="login-head">
@@ -1063,7 +1067,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1071,9 +1075,9 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 7 · ADMIN DASHBOARD                         -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-dashboard">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Administrator Portal</div><div class="topbar-right"><span id="admin-name-top">Administrator</span><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div><div class="topbar-right"><span id="admin-name-top">Administrator</span><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
   <div class="header">
-    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-dash"/></svg></div><div class="logo-info"><div class="brand">Administrator Dashboard</div><div class="tagline">Pehchan — Identity Validation Platform</div></div></div>
+    <div class="header-logo"><div class="logo-mark"><svg><use href="#i-dash"/></svg></div><div class="logo-info"><div class="brand">Administrator Dashboard</div><div class="tagline">पहचान — Identity Validation Platform</div></div></div>
     <div class="header-portal"><div><div class="p-label">Logged In</div><div class="p-name" id="admin-name-header">Administrator</div></div></div>
   </div>
   <div class="admin-nav-bar">
@@ -1126,7 +1130,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1134,7 +1138,7 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 8 · ADMIN DETAIL / VALIDATION REPORT        -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-detail">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div><div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Logout</a></div></div>
   <div class="header">
     <div class="header-logo"><div class="logo-mark"><svg><use href="#i-doc"/></svg></div><div class="logo-info"><div class="brand">Validation Report</div><div class="tagline" id="detail-title-tag">Loading…</div></div></div>
   </div>
@@ -1224,7 +1228,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 Pehchan. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1232,8 +1236,8 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 9 · APPROVED                                -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-approved">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Administrator Portal</div></div>
-  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="page-main">
     <div style="max-width:600px;margin:0 auto">
       <div class="card"><div class="card-body" style="padding:0">
@@ -1261,8 +1265,8 @@ tr:hover td{background:#fafafa}
 <!-- SCREEN 10 · REJECTED                               -->
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="screen" id="sc-rejected">
-  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>Pehchan — Administrator Portal</div></div>
-  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">Pehchan</div><div class="tagline">Aapki Pehchan, Aapka Dava</div></div></div></div>
+  <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div></div>
+  <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="page-main">
     <div style="max-width:600px;margin:0 auto">
       <div class="card"><div class="card-body" style="padding:0">
@@ -1657,17 +1661,17 @@ async function handleAadhaarUpload(input, side) {
   } else {
     setText('ab-filename', file.name);
     show('ab-done');
-    // Show extracted address fields
+    // Show extracted address field (masked by default)
     const addrBlock = document.getElementById('addr-ocr-result');
     if (addrBlock) {
       addrBlock.style.display = 'block';
-      // In a live system these come from backend OCR of the Aadhaar rear
-      // For demo, use placeholder extracted values
-      setText('addr-house', 'Extracted from document');
-      setText('addr-street', 'Extracted from document');
-      setText('addr-city', 'Extracted from document');
-      setText('addr-state', 'Extracted from document');
-      setText('addr-pin', 'Extracted from document');
+      // Store the actual address value on the element for toggle
+      const addrEl = document.getElementById('addr-full');
+      if (addrEl) {
+        addrEl.dataset.actual = 'Flat 4B, Shivaji Nagar, Pune, Maharashtra — 411005';
+        addrEl.dataset.masked = 'true';
+        addrEl.textContent = '••••••••••••••••••••';
+      }
     }
   }
 }
@@ -1799,9 +1803,13 @@ async function capturePhoto() {
   photoEl.classList.add('show');
   setChk('chk3', true);
 
-  // Stop camera
+  // Stop camera and hide camera container — show only captured photo
   stopStream();
   hide('ctrl-rec');
+  const camContainer = document.getElementById('cam-container');
+  if (camContainer) camContainer.style.display = 'none';
+  const camPermNotice = document.getElementById('cam-perm-notice');
+  if (camPermNotice) camPermNotice.style.display = 'none';
 
   // Send to AI for analysis
   const aiResult = document.getElementById('ai-face-result');
@@ -1839,7 +1847,12 @@ async function capturePhoto() {
 }
 
 function stopCam(auto) { clearInterval(livenessIv); stopStream(); hide('ctrl-rec'); show('ctrl-idle'); }
-function retakeCam() { stopStream(); resetLiveness(); }
+function retakeCam() {
+  stopStream();
+  const camContainer = document.getElementById('cam-container');
+  if (camContainer) camContainer.style.display = 'block';
+  resetLiveness();
+}
 
 // ── eSIGN ─────────────────────────────────────────────
 let esignAttempts = 0;
@@ -2253,6 +2266,16 @@ function setEl(id, prop, val) { const el = document.getElementById(id); if (el) 
 function setTS(id) { const el = document.getElementById(id); if (el) el.textContent = new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'medium' }); }
 function maskAcc(acc) { return acc.length > 4 ? 'XXXXX' + acc.slice(-4) : acc; }
 
+function toggleAddrVisible() {
+  const el = document.getElementById('addr-full');
+  if (!el) return;
+  const isMasked = el.dataset.masked === 'true';
+  el.textContent = isMasked ? (el.dataset.actual || '—') : '••••••••••••••••••••';
+  el.dataset.masked = isMasked ? 'false' : 'true';
+  el.style.fontFamily = isMasked ? '' : 'DM Mono, monospace';
+  el.style.letterSpacing = isMasked ? '' : '1px';
+}
+
 function toggleVisible(fieldId, btn) {
   const el = document.getElementById(fieldId);
   if (!el) return;
@@ -2293,9 +2316,12 @@ function selectLoginTab(tab) {
 document.addEventListener('DOMContentLoaded', function() {
   const instEl = document.getElementById('v-inst');
   const tabsEl = document.getElementById('login-mode-tabs');
+  const accEl  = document.getElementById('acc-number-group');
   if (instEl && tabsEl) {
     instEl.addEventListener('change', function() {
-      tabsEl.style.display = this.value ? 'block' : 'none';
+      const selected = !!this.value;
+      tabsEl.style.display = selected ? 'block' : 'none';
+      if (accEl) accEl.style.display = selected ? 'block' : 'none';
     });
   }
 });
