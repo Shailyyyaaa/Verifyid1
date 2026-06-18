@@ -94,7 +94,6 @@ input,select,textarea{font-family:inherit}
 
 /* ─── PAGE MAIN ──────────────────────────────────────── */
 .page-main{flex:1;padding:28px 24px}
-.page-inner{max-width:1100px;margin:0 auto}
 
 /* ─── STEPPER ────────────────────────────────────────── */
 .stepper{display:flex;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 24px;margin-bottom:24px;box-shadow:var(--shadow-xs);gap:0;}
@@ -386,92 +385,6 @@ tr:hover td{background:#fafafa}
 .ic{display:inline-block;vertical-align:middle}
 .sample-doc{border:1px dashed var(--border);border-radius:var(--r);overflow:hidden;margin-top:12px}
 .sample-doc-label{padding:5px 10px;background:var(--surface);font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);border-bottom:1px solid var(--border)}
-
-/* ─── MOBILE RESPONSIVE ──────────────────────────────── */
-@media(max-width:768px){
-  .page-main{padding:16px 14px}
-  .page-inner{padding:0}
-
-  /* Topbar */
-  .topbar{padding:0 14px;font-size:11px}
-  .topbar-right{gap:12px}
-  .topbar-right a:not(:last-child){display:none}
-
-  /* Header */
-  .header{padding:0 14px;height:56px}
-  .header-portal .p-name{font-size:11.5px}
-
-  /* Hero */
-  .hero{padding:20px 14px 18px}
-  .hero h1{font-size:18px}
-  .hero p{font-size:12.5px}
-  .hero-chips{gap:6px}
-
-  /* Two-col → single col */
-  .two-col{grid-template-columns:1fr;gap:12px}
-  .two-col>.card+.card{margin-top:0}
-
-  /* Stats grid → 2 col */
-  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .stat-card .sval{font-size:22px}
-
-  /* Grid-2 → single col */
-  .grid-2{grid-template-columns:1fr}
-
-  /* Detail label min-width reduce */
-  .dl{min-width:110px;font-size:11.5px}
-  .dv{font-size:12.5px}
-
-  /* Stepper — compact */
-  .stepper{padding:12px 10px}
-  .step-label{font-size:9.5px}
-  .step-num{width:24px;height:24px;font-size:11px}
-
-  /* Admin nav */
-  .admin-nav-bar{padding:0 14px}
-
-  /* Score ring row */
-  .score-row{flex-wrap:wrap;gap:10px}
-  .pbar{width:100%!important}
-
-  /* Admin decision buttons — stack */
-  #detail-decision-card .card-body>div:first-child{flex-direction:column}
-  #detail-decision-card .card-body>div:first-child .btn{width:100%;justify-content:center}
-
-  /* Table horizontal scroll already handled by tbl-wrap */
-  th{font-size:10.5px;padding:8px 10px}
-  td{font-size:12px;padding:8px 10px}
-
-  /* Cam container */
-  .cam-container{max-width:100%}
-
-  /* Footer */
-  .footer-grid{grid-template-columns:1fr 1fr;gap:18px}
-  .footer{padding:20px 14px 12px}
-
-  /* Login card */
-  .login-card{width:100%}
-
-  /* Modal */
-  .modal{width:96%}
-
-  /* OTP boxes */
-  .otp-box{width:44px;height:48px;font-size:20px}
-
-  /* Liveness screen side panel → stack */
-  #sc-live .page-main>div>div[style*="grid-template-columns"]{display:block!important}
-  #sc-live .page-main>div>div[style*="grid-template-columns"]>div:first-child{margin-bottom:16px}
-
-  /* Detail decision score strip */
-  .decision-score-strip{flex-direction:column;gap:10px;align-items:flex-start!important}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .hero h1{font-size:16px}
-  .btn-lg{padding:10px 18px;font-size:13px}
-  .otp-row{gap:7px}
-  .otp-box{width:38px;height:44px;font-size:18px}
-}
 </style>
 </head>
 <body>
@@ -517,6 +430,17 @@ tr:hover td{background:#fafafa}
     </div>
     <div class="header-portal"><div><div class="p-label">Identity Validation</div><div class="p-name">Depositor Portal</div></div></div>
   </div>
+  <div class="header-nav-strip">
+    <a href="#" class="active">Depositors</a>
+    <a href="#">Institutions</a>
+    <a href="#">About</a>
+    <a href="#">Help</a>
+  </div>
+  <div class="breadcrumb">
+    <a href="#">Home</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg>
+    <a href="#">Depositors</a><svg><use href="#i-x" style="transform:rotate(45deg)"/></svg>
+    <span>Identity Validation Portal</span>
+  </div>
   <div class="hero">
     <div class="hero-inner">
       <h1>Depositor Identity Validation Portal</h1>
@@ -531,7 +455,7 @@ tr:hover td{background:#fafafa}
   </div>
 
   <div class="page-main">
-    <div class="page-inner">
+    <div style="max-width:960px;margin:0 auto">
       <div class="stepper">
         <div class="step active"><div class="step-num">1</div><div class="step-label">Account<br>Verify</div></div>
         <div class="step"><div class="step-num">2</div><div class="step-label">Claim<br>Details</div></div>
@@ -555,7 +479,7 @@ tr:hover td{background:#fafafa}
               <div class="form-group">
                 <label for="v-inst">Select Your Bank <span class="req">*</span></label>
                 <select class="input" id="v-inst">
-                  <option value="">— Select Registered Bank —</option>
+                  <option value="">— Select Bank —</option>
                   <option value="fnfs">First National Financial Services</option>
                   <option value="mcu">Metro Credit Union</option>
                   <option value="hsb">Heritage Savings Bank</option>
@@ -689,17 +613,172 @@ tr:hover td{background:#fafafa}
   </div>
 
   <div class="footer">
-    <div class="footer-grid page-inner">
-      <div class="footer-brand"><div class="fn">पहचान</div><p>A secure identity validation platform for deposit insurance claim settlement. Built for accuracy, speed and compliance.</p></div>
+    <div class="footer-grid" style="max-width:960px;margin:0 auto">
+      <div class="footer-brand"><div class="fn">पहचान</div><p>A secure identity validation platform for deposit insurance claim settlement. Built for accuracy, speed and compliance with the Digital Personal Data Protection Act, 2023.</p></div>
       <div class="footer-col"><h4>Depositors</h4><ul><li><a href="#">Identity Verification</a></li><li><a href="#">Claim Status</a></li><li><a href="#">FAQs</a></li></ul></div>
       <div class="footer-col"><h4>Institutions</h4><ul><li><a href="#">Admin Portal</a></li><li><a href="#">API Docs</a></li><li><a href="#">Compliance</a></li></ul></div>
-      <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Help Centre</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+      <div class="footer-col"><h4>Data &amp; Privacy</h4><ul><li><a href="#" onclick="openModal('m-privacy');return false">Privacy Notice</a></li><li><a href="#">Grievance Portal</a></li><li><a href="#">DPDP Rights</a></li></ul></div>
     </div>
-    <div class="footer-bottom page-inner">
-      <span>© 2026 पहचान. All rights reserved.</span>
-      <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Accessibility</a></div>
+    <div style="max-width:960px;margin:0 auto;padding:12px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <svg style="width:14px;height:14px;fill:var(--teal-light);flex-shrink:0;margin-top:1px"><use href="#i-shield"/></svg>
+        <div style="font-size:11.5px;color:rgba(255,255,255,.5);line-height:1.7">
+          <strong style="color:rgba(255,255,255,.75)">Data Grievance Officer — DICGC:</strong> Nodal Officer, Data Protection · Deposit Insurance and Credit Guarantee Corporation, RBI Building, Mumbai — 400 001 · <a href="mailto:grievance@dicgc.org.in" style="color:var(--teal-light)">grievance@dicgc.org.in</a> · Complaints to be submitted within 30 days of the incident. Response guaranteed within 15 working days.
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom" style="max-width:960px;margin:0 auto">
+      <span>© 2026 पहचान · DICGC. All rights reserved.</span>
+      <div class="footer-links"><a href="#" onclick="openModal('m-privacy');return false">Privacy Notice</a><a href="#">Terms</a><a href="#">Accessibility</a></div>
     </div>
   </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCREEN 1B · CONSENT & PRIVACY NOTICE               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="screen" id="sc-consent">
+  <div class="topbar">
+    <div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — आपकी पहचान, आपका दावा</div>
+    <div class="topbar-right"><a href="#" onclick="go('sc-admin-login');return false">Admin Login →</a></div>
+  </div>
+  <div class="header">
+    <div class="header-logo">
+      <div class="logo-mark"><svg><use href="#i-shield"/></svg></div>
+      <div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div>
+    </div>
+    <div class="header-portal"><div><div class="p-label">Step 1 of 5</div><div class="p-name">Privacy Notice &amp; Consent</div></div></div>
+  </div>
+
+  <div class="page-main">
+    <div style="max-width:760px;margin:0 auto">
+
+      <div class="stepper">
+        <div class="step active"><div class="step-num">1</div><div class="step-label">Account<br>Verify</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-label">Claim<br>Details</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-label">Liveness<br>Check</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-label">eSign</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-label">Submitted</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="icon-wrap"><svg><use href="#i-lock"/></svg></div>
+          <h2>Privacy Notice &amp; Data Collection Consent</h2>
+        </div>
+        <div class="card-body">
+
+          <!-- Notice header -->
+          <div style="background:var(--navy);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px">
+            <svg style="width:20px;height:20px;fill:var(--teal-light);flex-shrink:0;margin-top:1px"><use href="#i-info"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px">Notice under the Digital Personal Data Protection Act, 2023</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.6">Before proceeding, please read the following notice carefully. Your explicit consent is required to continue.</div>
+            </div>
+          </div>
+
+          <!-- Section 1: Who is collecting -->
+          <div style="margin-bottom:18px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px"><svg style="width:12px;height:12px;fill:var(--teal)"><use href="#i-user"/></svg> Data Fiduciary</div>
+            <div style="font-size:13px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+              <strong style="color:var(--text-primary)">Deposit Insurance and Credit Guarantee Corporation (DICGC)</strong>, a statutory body under the Reserve Bank of India, is collecting your personal data through this portal (<em>Pehchan</em>) for identity validation purposes under the DICGC Act, 1961.
+            </div>
+          </div>
+
+          <!-- Section 2: What is collected -->
+          <div style="margin-bottom:18px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px"><svg style="width:12px;height:12px;fill:var(--teal)"><use href="#i-doc"/></svg> Data Being Collected</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+              <div style="display:grid;grid-template-columns:1fr 1fr">
+                <div style="padding:10px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">
+                  <div style="font-size:11.5px;font-weight:600;color:var(--text-primary);margin-bottom:2px">PAN Card</div>
+                  <div style="font-size:11.5px;color:var(--text-muted)">Name, PAN number, Date of Birth, Father's Name</div>
+                </div>
+                <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+                  <div style="font-size:11.5px;font-weight:600;color:var(--text-primary);margin-bottom:2px">Aadhaar Card</div>
+                  <div style="font-size:11.5px;color:var(--text-muted)">Name, masked Aadhaar number, Date of Birth, Gender, Address</div>
+                </div>
+                <div style="padding:10px 14px;border-right:1px solid var(--border)">
+                  <div style="font-size:11.5px;font-weight:600;color:var(--text-primary);margin-bottom:2px">Liveness Photo</div>
+                  <div style="font-size:11.5px;color:var(--text-muted)">Real-time photo for liveness verification only</div>
+                </div>
+                <div style="padding:10px 14px">
+                  <div style="font-size:11.5px;font-weight:600;color:var(--text-primary);margin-bottom:2px">Claim Details</div>
+                  <div style="font-size:11.5px;color:var(--text-muted)">Account number, institution, claim amount, UCIC</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Purpose -->
+          <div style="margin-bottom:18px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px"><svg style="width:12px;height:12px;fill:var(--teal)"><use href="#i-shield"/></svg> Purpose of Collection</div>
+            <div style="font-size:13px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+              Your personal data is collected <strong style="color:var(--text-primary)">solely for the purpose of identity validation</strong> in connection with your deposit insurance claim under the DICGC Act, 1961. It will be used to verify your identity against the records held by the Liquidator of your failed or distressed co-operative bank. Your data will <strong style="color:var(--text-primary)">not</strong> be used for any other purpose, including marketing, profiling, or credit assessment.
+            </div>
+          </div>
+
+          <!-- Section 4: Sharing & Retention -->
+          <div style="margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px">Shared With</div>
+              <div style="font-size:12.5px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;height:100%">
+                Your data will be shared only with:<br>
+                <strong style="color:var(--text-primary)">· The appointed Liquidator</strong> of your bank for identity verification<br>
+                <strong style="color:var(--text-primary)">· DICGC's internal claim settlement systems</strong><br>
+                It will not be shared with any third party outside this framework.
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px">Retention Period</div>
+              <div style="font-size:12.5px;color:var(--text-sec);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;height:100%">
+                Your data will be retained for <strong style="color:var(--text-primary)">7 years post-claim settlement</strong> in accordance with DICGC's statutory record-keeping requirements, after which it will be permanently purged from all systems.
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Rights -->
+          <div style="margin-bottom:20px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);margin-bottom:8px">Your Rights under the DPDP Act, 2023</div>
+            <div style="background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:var(--r);padding:12px 14px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12.5px;color:#0f4c48;line-height:1.6">
+                <div>✓ Right to access your data (§11)</div>
+                <div>✓ Right to correction of inaccurate data (§12)</div>
+                <div>✓ Right to erasure of data (§13)</div>
+                <div>✓ Right to withdraw consent at any time (§6(4))</div>
+                <div>✓ Right to nominate a representative (§14)</div>
+                <div>✓ Right to raise a grievance (§13)</div>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:#0f4c48">To exercise any of these rights, contact the Grievance Officer: <strong>grievance@dicgc.org.in</strong></div>
+            </div>
+          </div>
+
+          <!-- Consent checkbox -->
+          <div style="background:var(--amber-bg);border:1.5px solid #fcd34d;border-radius:var(--r);padding:14px 16px;margin-bottom:20px">
+            <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;font-size:13px;color:var(--text-primary);font-weight:500;line-height:1.6;margin:0">
+              <input type="checkbox" id="consent-checkbox" onchange="toggleConsentBtn()" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--teal);cursor:pointer">
+              <span>I have read and understood the above Privacy Notice. I voluntarily and explicitly consent to DICGC collecting, processing, and storing my personal data as described above, for the purpose of identity validation in connection with my deposit insurance claim. I understand I may withdraw this consent at any time by contacting the Grievance Officer.</span>
+            </label>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-teal btn-lg" id="consent-proceed-btn" disabled onclick="giveConsent()">
+              <svg><use href="#i-check"/></svg> I Agree &amp; Proceed
+            </button>
+            <button class="btn btn-ghost" onclick="go('sc-verify')">← Cancel &amp; Go Back</button>
+          </div>
+          <div style="margin-top:12px;font-size:11.5px;color:var(--text-muted)">
+            Reference: Digital Personal Data Protection Act, 2023 · DICGC Act, 1961 · Consent recorded with timestamp at time of proceeding.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान · DICGC. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -716,7 +795,7 @@ tr:hover td{background:#fafafa}
   <div class="hero"><div class="hero-inner"><h1>Identity &amp; Claim Details</h1><p>Upload your PAN and Aadhaar — the system will extract and verify your information securely</p></div></div>
 
   <div class="page-main">
-    <div class="page-inner">
+    <div style="max-width:960px;margin:0 auto">
       <div class="stepper">
         <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Account Verify</div></div>
         <div class="step active"><div class="step-num">2</div><div class="step-label">Claim Details</div></div>
@@ -756,6 +835,7 @@ tr:hover td{background:#fafafa}
             </div>
             <div class="form-group">
               <label>Upload PAN Card <span class="req">*</span> <span style="font-size:11px;color:var(--text-muted);font-weight:400">(JPG/PNG/PDF, max 5MB)</span></label>
+              <div class="note-box" style="margin-bottom:10px;font-size:11.5px">🔒 <strong>Purpose:</strong> Your PAN card is collected solely to verify your name for deposit insurance claim processing under the DICGC Act, 1961. It will not be used for any other purpose.</div>
               <div class="upload-area" id="pan-upload-area">
                 <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="pan-file" onchange="handlePANUpload(this)">
                 <svg><use href="#i-upload"/></svg>
@@ -798,6 +878,7 @@ tr:hover td{background:#fafafa}
             </div>
             <div class="form-group">
               <label>Upload Aadhaar — Front <span class="req">*</span></label>
+              <div class="note-box" style="margin-bottom:10px;font-size:11.5px">🔒 <strong>Purpose:</strong> Your Aadhaar is collected solely to verify your identity. Your Aadhaar number will be masked in all records — the full number will not be stored.</div>
               <div class="upload-area">
                 <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="af-file" onchange="handleAadhaarUpload(this,'front')">
                 <svg><use href="#i-upload"/></svg>
@@ -824,6 +905,7 @@ tr:hover td{background:#fafafa}
 
             <div class="form-group mt-12">
               <label>Upload Aadhaar — Back <span class="req">*</span></label>
+              <div class="note-box" style="margin-bottom:10px;font-size:11.5px">🔒 <strong>Purpose:</strong> Your address is extracted solely to complete identity validation. It will not be used for any other purpose or shared outside the claim settlement process.</div>
               <div class="upload-area">
                 <input type="file" accept=".jpg,.jpeg,.png,.pdf" id="ab-file" onchange="handleAadhaarUpload(this,'back')">
                 <svg><use href="#i-upload"/></svg>
@@ -871,7 +953,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -887,7 +969,7 @@ tr:hover td{background:#fafafa}
   <div class="hero"><div class="hero-inner"><h1>Liveness Detection</h1><p>Verify your physical presence — the system will analyse your photo in real-time</p></div></div>
 
   <div class="page-main">
-    <div class="page-inner">
+    <div style="max-width:960px;margin:0 auto">
       <div class="stepper">
         <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Account Verify</div></div>
         <div class="step done"><div class="step-num"><svg style="width:13px;height:13px;fill:#fff"><use href="#i-check"/></svg></div><div class="step-label">Claim Details</div></div>
@@ -898,6 +980,7 @@ tr:hover td{background:#fafafa}
 
       <div style="display:grid;grid-template-columns:1fr 320px;gap:20px">
         <div>
+          <div class="note-box" style="margin-bottom:12px;font-size:11.5px">🔒 <strong>Purpose:</strong> This photo is used only for real-time liveness verification to confirm your physical presence. It is processed by the system and is not used for facial recognition, profiling, or any purpose beyond this identity validation.</div>
           <div class="alert alert-info" id="cam-perm-notice">
             <svg><use href="#i-cam"/></svg>
             <div><strong>Camera access required.</strong> Your browser will prompt for permission. A photo will be taken and analysed by the system for liveness verification.</div>
@@ -981,7 +1064,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1064,7 +1147,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1111,7 +1194,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1145,7 +1228,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:960px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1166,7 +1249,7 @@ tr:hover td{background:#fafafa}
   </div>
 
   <div class="page-main">
-    <div class="page-inner">
+    <div style="max-width:1060px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div>
           <h2 style="font-size:18px;font-weight:700;color:var(--navy)">Submission Queue</h2>
@@ -1208,7 +1291,7 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1226,7 +1309,7 @@ tr:hover td{background:#fafafa}
   </div>
 
   <div class="page-main">
-    <div class="page-inner">
+    <div style="max-width:1060px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
           <h2 style="font-size:18px;font-weight:700;color:var(--navy)" id="detail-heading">Validation Report</h2>
@@ -1282,21 +1365,6 @@ tr:hover td{background:#fafafa}
       <div class="card mt-20" id="detail-decision-card" style="display:none">
         <div class="card-head"><div class="icon-wrap"><svg><use href="#i-check"/></svg></div><h2>Admin Decision</h2></div>
         <div class="card-body">
-          <!-- Score summary injected here by renderAIReport -->
-          <div id="decision-score-summary" style="display:none;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;flex-wrap:wrap" class="decision-score-strip">
-            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:200px">
-              <div id="dec-score-ring" class="score-ring hi" style="width:52px;height:52px;border-width:2.5px"><div class="sn" id="dec-score-num" style="font-size:18px">—</div><div class="sd">/100</div></div>
-              <div>
-                <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Validation Score</div>
-                <span id="dec-risk-badge" class="badge badge-low">—</span>
-              </div>
-            </div>
-            <div id="dec-rec-box" class="rec-box rec-approve" style="flex:2;min-width:200px;margin-top:0">
-              <svg id="dec-rec-icon"><use href="#i-check"/></svg>
-              <div><strong>AI Recommendation:</strong> <span id="dec-rec-text">—</span></div>
-            </div>
-          </div>
-
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn btn-success" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Approve &amp; Forward</button>
             <button class="btn btn-danger" onclick="showReject()"><svg><use href="#i-x"/></svg> Reject Submission</button>
@@ -1323,7 +1391,7 @@ tr:hover td{background:#fafafa}
 
     </div>
   </div>
-  <div class="footer"><div class="page-inner"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
+  <div class="footer"><div style="max-width:1060px;margin:0 auto"><div class="footer-bottom"><span>© 2026 पहचान. All rights reserved.</span></div></div></div>
 </div>
 
 
@@ -1334,7 +1402,7 @@ tr:hover td{background:#fafafa}
   <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div></div>
   <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="page-main">
-    <div class="page-inner" style="max-width:600px">
+    <div style="max-width:600px;margin:0 auto">
       <div class="card"><div class="card-body" style="padding:0">
         <div class="success-wrap">
           <div class="success-icon si-green"><svg><use href="#i-check"/></svg></div>
@@ -1363,7 +1431,7 @@ tr:hover td{background:#fafafa}
   <div class="topbar"><div class="topbar-left"><svg><use href="#i-shield"/></svg>पहचान — Administrator Portal</div></div>
   <div class="header"><div class="header-logo"><div class="logo-mark"><svg><use href="#i-shield"/></svg></div><div class="logo-info"><div class="brand">पहचान</div><div class="tagline">आपकी पहचान, आपका दावा</div></div></div></div>
   <div class="page-main">
-    <div class="page-inner" style="max-width:600px">
+    <div style="max-width:600px;margin:0 auto">
       <div class="card"><div class="card-body" style="padding:0">
         <div class="success-wrap">
           <div class="success-icon si-red"><svg><use href="#i-x"/></svg></div>
@@ -1408,6 +1476,47 @@ tr:hover td{background:#fafafa}
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('m-reject')">Cancel</button>
       <button class="btn btn-danger" onclick="doReject()"><svg style="width:14px;height:14px;fill:#fff"><use href="#i-x"/></svg> Yes, Reject</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-privacy">
+  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+    <div class="modal-head">
+      <div style="width:32px;height:32px;background:var(--teal-pale);border:1px solid var(--teal-mid);border-radius:8px;display:flex;align-items:center;justify-content:center"><svg style="width:16px;height:16px;fill:var(--teal)"><use href="#i-lock"/></svg></div>
+      <h3>Privacy Notice — पहचान</h3>
+    </div>
+    <div class="modal-body" style="font-size:13px;line-height:1.75">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);margin-bottom:6px">Issued under the Digital Personal Data Protection Act, 2023</p>
+
+      <p style="margin-bottom:12px"><strong>Data Fiduciary:</strong> Deposit Insurance and Credit Guarantee Corporation (DICGC), a statutory body under the Reserve Bank of India.</p>
+
+      <p style="font-weight:700;color:var(--navy);margin-bottom:4px">Data Collected</p>
+      <p style="margin-bottom:12px">PAN card details (name, number, date of birth, father's name), Aadhaar card details (name, masked number, date of birth, gender, address), liveness photo (for verification only), and claim-related information (account number, institution, claim amount, UCIC).</p>
+
+      <p style="font-weight:700;color:var(--navy);margin-bottom:4px">Purpose</p>
+      <p style="margin-bottom:12px">Your personal data is collected solely for identity validation in connection with your deposit insurance claim under the DICGC Act, 1961. It will not be used for marketing, profiling, credit assessment, or any purpose beyond claim settlement.</p>
+
+      <p style="font-weight:700;color:var(--navy);margin-bottom:4px">Sharing</p>
+      <p style="margin-bottom:12px">Your data will be shared only with the appointed Liquidator of your bank and DICGC's internal claim settlement systems. No third-party sharing outside this framework.</p>
+
+      <p style="font-weight:700;color:var(--navy);margin-bottom:4px">Retention</p>
+      <p style="margin-bottom:12px">Your data will be retained for 7 years post-claim settlement per DICGC statutory record-keeping requirements, after which it will be permanently purged.</p>
+
+      <p style="font-weight:700;color:var(--navy);margin-bottom:4px">Your Rights (DPDP Act, 2023)</p>
+      <p style="margin-bottom:12px">You have the right to access, correct, and erase your personal data (§11–13), withdraw consent at any time (§6(4)), nominate a representative (§14), and raise a grievance (§13). To exercise these rights, contact the Grievance Officer below.</p>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:12.5px">
+        <strong style="color:var(--navy)">Data Grievance Officer — DICGC</strong><br>
+        Nodal Officer, Data Protection<br>
+        Deposit Insurance and Credit Guarantee Corporation<br>
+        RBI Building, Mumbai — 400 001<br>
+        <a href="mailto:grievance@dicgc.org.in">grievance@dicgc.org.in</a><br>
+        <span style="color:var(--text-muted);font-size:12px">Complaints within 30 days · Response within 15 working days</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-teal" onclick="closeModal('m-privacy')">Close</button>
     </div>
   </div>
 </div>
@@ -1645,6 +1754,7 @@ function go(id) {
   if (id === 'sc-submit') populateSubmitScreen();
   if (id === 'sc-live') resetLiveness();
   if (id === 'sc-dashboard') populateDashboard();
+  if (id === 'sc-consent') resetConsentScreen();
 }
 
 // ── ACCOUNT VALIDATION ────────────────────────────────
@@ -1675,7 +1785,7 @@ function getOTP(prefix) {
 }
 function doOTP(type) {
   const val = getOTP(type === 'k' ? 'k' : 'n');
-  if (val === '1234') { populateKYC(); go('sc-kyc'); return; }
+  if (val === '1234') { populateKYC(); go('sc-consent'); return; }
   otpAttempts++;
   document.getElementById(type === 'k' ? 'e-otp-k' : 'e-otp-n').classList.add('show');
   if (otpAttempts >= 3) { hide('v-otp-known'); show('v-locked'); clearInterval(timerIv); }
@@ -1693,6 +1803,30 @@ function startTimer() {
 function resetTimer() { document.getElementById('rbtn').style.display = 'none'; document.getElementById('rtimer').style.display = 'block'; startTimer(); }
 
 // ── KYC PRE-FILL ──────────────────────────────────────
+// ── CONSENT SCREEN ───────────────────────────────────
+function toggleConsentBtn() {
+  const cb  = document.getElementById('consent-checkbox');
+  const btn = document.getElementById('consent-proceed-btn');
+  if (btn) btn.disabled = !(cb && cb.checked);
+}
+
+function giveConsent() {
+  const cb = document.getElementById('consent-checkbox');
+  if (!cb || !cb.checked) return;
+  // Record consent in state with timestamp
+  state.consentGiven     = true;
+  state.consentTimestamp = new Date().toISOString();
+  go('sc-kyc');
+}
+
+// Reset consent checkbox whenever the screen is re-entered
+function resetConsentScreen() {
+  const cb  = document.getElementById('consent-checkbox');
+  const btn = document.getElementById('consent-proceed-btn');
+  if (cb)  cb.checked  = false;
+  if (btn) btn.disabled = true;
+}
+
 function populateKYC() {
   if (!state.depositor) return;
   const d = state.depositor;
@@ -2030,6 +2164,8 @@ function populateSubmitScreen() {
     panOCR: state.panOCR, aadhaarOCR: state.aadhaarOCR, faceCheck: state.faceCheck,
     capturedPhoto: state.capturedPhotoDataUrl,
     validationScore,
+    consentGiven: state.consentGiven || false,
+    consentTimestamp: state.consentTimestamp || null,
     status: 'Pending', submittedAt: ts, ref: ref, isLive: true
   });
 }
@@ -2188,8 +2324,6 @@ function openLiveDetail(claimNumber) {
   aiSection.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner" style="width:32px;height:32px;margin:0 auto 10px"></div><p style="font-size:13px;color:var(--text-muted)">Generating validation report…</p></div>';
   const dc1 = document.getElementById('detail-decision-card');
   if (dc1) dc1.style.display = 'none';
-  const ds1 = document.getElementById('decision-score-summary');
-  if (ds1) ds1.style.display = 'none';
 
   // Modal details
   const modal = document.getElementById('modal-approve-details');
@@ -2278,8 +2412,6 @@ function openDetail(idx) {
   aiSection.innerHTML = `<div style="text-align:center;padding:20px"><div class="spinner" style="width:32px;height:32px;margin:0 auto 10px"></div><p style="font-size:13px;color:var(--text-muted)">Generating validation report…</p></div>`;
   const dc2 = document.getElementById('detail-decision-card');
   if (dc2) dc2.style.display = 'none';
-  const ds2 = document.getElementById('decision-score-summary');
-  if (ds2) ds2.style.display = 'none';
 
   go('sc-detail');
 
@@ -2348,29 +2480,12 @@ function renderAIReport(r, container) {
     <div class="explain-list">${flagsHTML}</div>
     <div class="rec-box ${recClass}">
       <svg><use href="${recIcon}"/></svg>
-      <div><strong>Recommendation:</strong> ${r.recommendation_text || r.recommendation}</div>
+      <div><strong>System Recommendation:</strong> ${r.recommendation_text || r.recommendation}</div>
     </div>`;
 
-  // Reveal Admin Decision card and populate score summary
+  // Reveal Admin Decision card now that report is ready
   const decisionCard = document.getElementById('detail-decision-card');
   if (decisionCard) {
-    // Populate score summary strip
-    const summary = document.getElementById('decision-score-summary');
-    if (summary) {
-      const ringEl = document.getElementById('dec-score-ring');
-      const numEl  = document.getElementById('dec-score-num');
-      const riskEl = document.getElementById('dec-risk-badge');
-      const recBox = document.getElementById('dec-rec-box');
-      const recIco = document.getElementById('dec-rec-icon');
-      const recTxt = document.getElementById('dec-rec-text');
-      if (ringEl) ringEl.className = 'score-ring ' + ringClass;
-      if (numEl)  numEl.textContent = sc;
-      if (riskEl) { riskEl.className = 'badge badge-' + (sc>=80?'low':sc>=60?'med':'high'); riskEl.textContent = (r.risk_level||'Medium') + ' Risk'; }
-      if (recBox) recBox.className = 'rec-box ' + recClass;
-      if (recIco) recIco.querySelector('use').setAttribute('href', recIcon);
-      if (recTxt) recTxt.textContent = r.recommendation_text || r.recommendation || '—';
-      summary.style.display = 'flex';
-    }
     decisionCard.style.display = 'block';
     decisionCard.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
