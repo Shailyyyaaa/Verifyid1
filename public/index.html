@@ -348,6 +348,9 @@ tr:hover td{background:#fafafa}
 .reject-panel{display:none;padding:16px;background:var(--red-bg);border:1px solid #fecaca;border-radius:var(--r);margin-top:14px}
 .reject-panel.show{display:block}
 .reject-panel-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:14px}
+.approve-panel{display:none;padding:16px;background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--r);margin-top:14px}
+.approve-panel.show{display:block}
+.approve-panel-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:14px}
 
 /* ─── TWO-COL ────────────────────────────────────────── */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
@@ -892,7 +895,15 @@ tr:hover td{background:#fafafa}
             <div class="ocr-result" id="pan-ocr-result">
               <div class="ocr-title">Data Extracted from Uploaded Document</div>
               <div class="ocr-row"><div class="ocr-label">Name</div><div class="ocr-value" id="pan-ocr-name">—</div></div>
-              <div class="ocr-row"><div class="ocr-label">PAN Number</div><div class="ocr-value" id="pan-ocr-pan">—</div></div>
+              <div class="ocr-row" style="align-items:center">
+                <div class="ocr-label">PAN Number</div>
+                <div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end">
+                  <div class="ocr-value mono" id="pan-ocr-pan" data-actual="" data-masked="true" style="letter-spacing:1px">—</div>
+                  <button type="button" onclick="togglePANVisible()" id="pan-eye" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--teal)">
+                    <svg style="width:15px;height:15px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  </button>
+                </div>
+              </div>
               <div class="ocr-row"><div class="ocr-label">Date of Birth</div><div class="ocr-value" id="pan-ocr-dob">—</div></div>
               <div class="ocr-row"><div class="ocr-label">Confidence</div><div class="ocr-value" id="pan-ocr-conf">—</div></div>
             </div>
@@ -1419,9 +1430,28 @@ tr:hover td{background:#fafafa}
           </div>
 
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-success" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Approve &amp; Forward</button>
+            <button class="btn btn-success" onclick="showApprove()"><svg><use href="#i-check"/></svg> Approve &amp; Forward</button>
             <button class="btn btn-danger" onclick="showReject()"><svg><use href="#i-x"/></svg> Reject Submission</button>
             <button class="btn btn-ghost" onclick="alert('Sent back for re-submission')">↩ Send Back</button>
+          </div>
+
+          <!-- Approval panel — mirrors reject panel pattern -->
+          <div class="approve-panel" id="app-panel">
+            <div class="approve-panel-title">Approval Remarks</div>
+            <div class="form-group">
+              <label>Approval Basis</label>
+              <select class="input" id="app-reason">
+                <option value="Identity verified — documents match">Identity verified — documents match</option>
+                <option value="Identity verified — minor discrepancy noted">Identity verified — minor discrepancy noted</option>
+                <option value="Identity verified — Liquidator override applied">Identity verified — Liquidator override applied</option>
+                <option value="Identity verified — manual cross-check completed">Identity verified — manual cross-check completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Remarks <span style="font-size:11px;color:var(--text-muted);font-weight:400">(optional)</span></label>
+              <textarea class="input" id="app-remarks" placeholder="Enter any observations or notes for audit trail…"></textarea>
+            </div>
+            <button class="btn btn-success" onclick="openModal('m-approve')"><svg><use href="#i-check"/></svg> Confirm Approval</button>
           </div>
           <div class="reject-panel" id="rej-panel">
             <div class="reject-panel-title">Rejection Details (Mandatory)</div>
@@ -1466,6 +1496,8 @@ tr:hover td{background:#fafafa}
             <div class="sum-row"><div class="sk">Depositor</div><div class="sv" id="app-name">—</div></div>
             <div class="sum-row"><div class="sk">Claim Amount</div><div class="sv" id="app-amount">—</div></div>
             <div class="sum-row"><div class="sk">Decision</div><div class="sv" style="color:var(--green)">✓ Approved</div></div>
+            <div class="sum-row"><div class="sk">Approval Basis</div><div class="sv" id="app-reason-display" style="font-size:12px">—</div></div>
+            <div class="sum-row"><div class="sk">Remarks</div><div class="sv" id="app-remarks-display" style="font-size:12px;color:var(--text-sec)">—</div></div>
             <div class="sum-row"><div class="sk">Timestamp</div><div class="sv mono" id="app-ts" style="font-size:12px"></div></div>
             <div class="sum-row"><div class="sk">Next Step</div><div class="sv">Forwarded to Settlement Queue</div></div>
           </div>
@@ -1889,6 +1921,9 @@ function populateKYC() {
   setText('kyc-acc-num', maskAcc(d.accountNumber));
   setText('kyc-inst', d.institution);
   setText('kyc-amount', '₹ ' + d.claimAmount.toLocaleString('en-IN'));
+  // Reset PAN OCR masking state
+  const panEl = document.getElementById('pan-ocr-pan');
+  if (panEl) { panEl.textContent = '—'; panEl.dataset.actual = ''; panEl.dataset.masked = 'true'; panEl.style.letterSpacing = '1px'; }
 }
 
 // ── FILE UPLOADS & AI OCR ─────────────────────────────
@@ -1907,7 +1942,16 @@ async function handlePANUpload(input) {
   document.getElementById('pan-ocr-result').classList.add('show');
 
   setText('pan-ocr-name', result.name || '—');
-  setText('pan-ocr-pan', result.pan_number || '—');
+  // Store actual PAN and show masked version by default
+  const panEl = document.getElementById('pan-ocr-pan');
+  if (panEl && result.pan_number) {
+    const masked = result.pan_number.length >= 6
+      ? result.pan_number.slice(0, 5) + '••••' + result.pan_number.slice(-1)
+      : '••••••••••';
+    panEl.dataset.actual = result.pan_number;
+    panEl.dataset.masked = 'true';
+    panEl.textContent = masked;
+  }
   setText('pan-ocr-dob', result.dob || '—');
   setText('pan-ocr-conf', (result.confidence || 0) + '%');
 
@@ -2379,6 +2423,8 @@ function openLiveDetail(claimNumber) {
   if (dc1) dc1.style.display = 'none';
   const ds1 = document.getElementById('decision-score-summary');
   if (ds1) ds1.style.display = 'none';
+  const ap1 = document.getElementById('app-panel'); if (ap1) ap1.classList.remove('show');
+  const rp1 = document.getElementById('rej-panel'); if (rp1) rp1.classList.remove('show');
 
   // Modal details
   const modal = document.getElementById('modal-approve-details');
@@ -2469,6 +2515,8 @@ function openDetail(idx) {
   if (dc2) dc2.style.display = 'none';
   const ds2 = document.getElementById('decision-score-summary');
   if (ds2) ds2.style.display = 'none';
+  const ap2 = document.getElementById('app-panel'); if (ap2) ap2.classList.remove('show');
+  const rp2 = document.getElementById('rej-panel'); if (rp2) rp2.classList.remove('show');
 
   go('sc-detail');
 
@@ -2565,7 +2613,19 @@ function renderAIReport(r, container) {
 }
 
 // ── ADMIN DECISIONS ───────────────────────────────────
+function showApprove() {
+  // Hide reject panel if open
+  const rp = document.getElementById('rej-panel');
+  if (rp) rp.classList.remove('show');
+  const p = document.getElementById('app-panel');
+  p.classList.add('show');
+  p.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
 function showReject() {
+  // Hide approve panel if open
+  const ap = document.getElementById('app-panel');
+  if (ap) ap.classList.remove('show');
   const p = document.getElementById('rej-panel');
   p.classList.add('show');
   p.scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -2574,12 +2634,19 @@ function showReject() {
 function doApprove() {
   closeModal('m-approve');
   const d = state.currentReviewDepositor;
+  const reason  = document.getElementById('app-reason')?.value  || 'Identity verified — documents match';
+  const remarks = document.getElementById('app-remarks')?.value || '';
   setTS('app-ts');
   if (d) {
     setText('app-claim', d.claimNumber);
     setText('app-name', d.name);
     setText('app-amount', '\u20b9 ' + d.claimAmount.toLocaleString('en-IN'));
-    if (state.currentReviewIsLive) updateSubmissionStatus(d.claimNumber, 'Approved', '');
+    // Show approval basis on success screen
+    const appReasonEl = document.getElementById('app-reason-display');
+    if (appReasonEl) appReasonEl.textContent = reason;
+    const appRemarksEl = document.getElementById('app-remarks-display');
+    if (appRemarksEl) appRemarksEl.textContent = remarks || '—';
+    if (state.currentReviewIsLive) updateSubmissionStatus(d.claimNumber, 'Approved', reason);
   }
   go('sc-approved');
 }
@@ -2608,6 +2675,25 @@ function setText(id, val) { const el = document.getElementById(id); if (el) el.t
 function setEl(id, prop, val) { const el = document.getElementById(id); if (el) el[prop] = val; }
 function setTS(id) { const el = document.getElementById(id); if (el) el.textContent = new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'medium' }); }
 function maskAcc(acc) { return acc.length > 4 ? 'XXXXX' + acc.slice(-4) : acc; }
+
+function togglePANVisible() {
+  const el = document.getElementById('pan-ocr-pan');
+  const btn = document.getElementById('pan-eye');
+  if (!el || !el.dataset.actual) return;
+  const isMasked = el.dataset.masked === 'true';
+  if (isMasked) {
+    el.textContent = el.dataset.actual;
+    el.dataset.masked = 'false';
+    el.style.letterSpacing = '2px';
+    if (btn) btn.querySelector('svg path').setAttribute('d', 'M17.94 17.94A10.07 10.07 0 0112 20c-5 0-9.27-3.11-11-7.5a18.5 18.5 0 014.09-5.41M9.9 4.24A9.12 9.12 0 0112 4c5 0 9.27 3.11 11 7.5a18.07 18.07 0 01-2.16 3.38m-6.34 2.12A3 3 0 019 12m3-3a3 3 0 013 3M3 3l18 18');
+  } else {
+    const pan = el.dataset.actual;
+    el.textContent = pan.length >= 6 ? pan.slice(0,5) + '••••' + pan.slice(-1) : '••••••••••';
+    el.dataset.masked = 'true';
+    el.style.letterSpacing = '1px';
+    if (btn) btn.querySelector('svg path').setAttribute('d', 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z');
+  }
+}
 
 function toggleAddrVisible() {
   const el = document.getElementById('addr-full');
